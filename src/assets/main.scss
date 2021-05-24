@@ -1,0 +1,39 @@
+@charset "utf-8";
+
+// Include functions first (so you can manipulate colors, SVGs, calc, etc)
+@import "@/assets/bootstrap/scss/_functions.scss";
+
+// Include any default variable overrides here
+
+$body-bg: #212529;
+$input-bg: $body-bg;
+
+$body-color: #fff;
+
+
+// Include remainder of required Bootstrap stylesheets
+@import "@/assets/bootstrap/scss/_variables.scss";
+@import "@/assets/bootstrap/scss/_mixins.scss";
+
+// Include any optional Bootstrap components as you like
+@import "@/assets/bootstrap/scss/_root.scss";
+@import "@/assets/bootstrap/scss/_reboot.scss";
+@import "@/assets/bootstrap/scss/_type.scss";
+@import "@/assets/bootstrap/scss/_containers.scss";
+@import "@/assets/bootstrap/scss/_grid.scss";
+@import "@/assets/bootstrap/scss/_forms.scss";
+@import "@/assets/bootstrap/scss/_buttons.scss";
+@import "@/assets/bootstrap/scss/_utilities.scss";
+@import "@/assets/bootstrap/scss/utilities/_api.scss";
+@import "@/assets/bootstrap/scss/_helpers.scss";
+@import "@/assets/bootstrap/scss/_navbar.scss";
+@import "@/assets/bootstrap/scss/_images.scss";
+// Add additional custom code here
+#app{
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
