@@ -28,12 +28,10 @@ $body-color: #fff;
 @import "@/assets/bootstrap/scss/_helpers.scss";
 @import "@/assets/bootstrap/scss/_navbar.scss";
 @import "@/assets/bootstrap/scss/_images.scss";
+
 // Add additional custom code here
-#app{
+#app {
     height: 100vh;
     display: flex;
     flex-direction: column;
 }
-
-
-
