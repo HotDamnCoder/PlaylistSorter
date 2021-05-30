@@ -27,7 +27,6 @@
 import { defineComponent } from "vue";
 import navbar from "@/components/navbar.vue"; // @ is an alias to /src
 
-
 export default defineComponent({
   data() {
     return {

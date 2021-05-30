@@ -1,13 +1,7 @@
 <template>
   <section class="section">
     <div
-      class="
-        container
-        d-flex
-        flex-grow-1 flex-column
-        align-items-center
-        justify-content-center
-      "
+      class="container d-flex flex-grow-1 flex-column align-items-center justify-content-center"
     >
       <div class="row">
         <h1>Playlist fucker</h1>
@@ -52,15 +46,27 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
-const default_error_message = "Invalid url";
-const url_re = /(PLjc__[\w\d]{28})|([\w\d]{22})/g; //! Fix this regex
+class PlaylistId {
+  static reExps : {[index: string]: RegExp} = {
+    'youtube' : /([\d\w_-]){28,}/g,
+    'spotify' : /a/ //! Add this regex
 
-function getIDfromURL(url: string) {
-  var matches = url.match(url_re);
-  if (!matches || matches.length > 1) {
-    return "";
-  } else {
-    return matches[0];
+  }
+
+  id = "";
+  type = "";
+  constructor(url: string){
+    for (let type in PlaylistId.reExps){
+      let matches = url.match(PlaylistId.reExps[type]);
+      if (matches?.length == 1){
+        this.id = matches[0]
+        this.type = type
+        break;
+      }
+    }
+    if (!this.id || !this.type){
+      throw new Error('Invalid url')
+    }
   }
 }
 
@@ -72,17 +78,21 @@ export default defineComponent({
     };
   },
   methods: {
-    validateForm(e: { preventDefault: () => void; }) {
-      e.preventDefault();
+    validateForm(e: { preventDefault: () => void }) {
+      e.preventDefault(); //*  Prevents default form action
       this.error = "";
-      var playlist_id = getIDfromURL(this.url);
-      if (!playlist_id) {
-        this.error = default_error_message;
-      } else {
+      try{
+        let playlist_id = new PlaylistId(this.url);
         this.$router.push({
           name: "playlist",
-          query: { playlist_id: playlist_id },
+          query: { 
+            playlist_id: playlist_id.id,
+            playlist_type: playlist_id.type
+          },
         });
+      }
+      catch(error){
+        this.error = error.message
       }
     },
   },
