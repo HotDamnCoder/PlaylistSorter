@@ -5,15 +5,17 @@
       class="container d-flex flex-column align-items-center justify-content-center"
     >
       <div class="row">
-        <img class="img-fluid img-thumbnail rounded" :src="url" />
+        <img
+          class="img-fluid img-thumbnail rounded"
+          :src="thumbnail_url"
+          v-if="thumbnail_url"
+        />
       </div>
       <div class="row">
-        <h1>{{ playlist_id }}</h1>
+        <h1 v-if="playlist_name">{{ playlist_name }}</h1>
       </div>
     </div>
   </section>
-  <button v-on:click="login()">***REMOVED***</button>
-  <button v-on:click="fuck()">fuck</button>
 </template>
 
 <style lang="scss" scoped>
@@ -30,39 +32,48 @@ import navbar from "@/components/navbar.vue"; // @ is an alias to /src
 export default defineComponent({
   data() {
     return {
-      url: "",
+      thumbnail_url: "",
+      playlist_name: "",
       playlist_id: this.$route.query.playlist_id,
+      playlist_type: this.$route.query.playlist_type,
     };
   },
   components: {
     navbar,
   },
   methods: {
-    login() {
-      this.$gapi.login().then(({ currentUser, hasGrantedScopes }) => {
-        console.log({ currentUser, hasGrantedScopes });
-      });
+    loginToGoogle() {
+      return this.$gapi.login();
     },
-    fuck() {
-      console.log(this.$gapi);
+    loginToSpotify(){console.log()},
+    getPlaylistThumbnail() {
       this.$gapi.getGapiClient().then((gapi) => {
         gapi.client.youtube.playlists
           .list({
-            part: ["snippet,contentDetails"],
+            part: ["snippet"],
             id: [this.playlist_id],
           })
           .then(
             (response: {
               result: {
-                items: { snippet: { thumbnails: { high: { url: string } } } }[];
+                items: {
+                  snippet: {
+                    thumbnails: { medium: { url: string } };
+                    title: string;
+                  };
+                }[];
               };
             }) => {
-              console.log(response.result);
-              this.url = response.result.items[0].snippet.thumbnails.high.url;
+              this.playlist_name = response.result.items[0].snippet.title;
+              this.thumbnail_url =
+                response.result.items[0].snippet.thumbnails.medium.url;
             }
           );
       });
     },
+  },
+  beforeMount() {
+    this.loginToGoogle().then(this.getPlaylistThumbnail)
   },
 });
 </script>
