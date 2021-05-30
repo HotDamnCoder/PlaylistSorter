@@ -49,13 +49,13 @@
 }
 </style>
 
-<script lang="js">
+<script lang="ts">
 import { defineComponent } from "vue";
 
 const default_error_message = "Invalid url";
 const url_re = /(PLjc__[\w\d]{28})|([\w\d]{22})/g; //! Fix this regex
 
-function getIDfromURL(url) {
+function getIDfromURL(url: string) {
   var matches = url.match(url_re);
   if (!matches || matches.length > 1) {
     return "";
@@ -72,7 +72,7 @@ export default defineComponent({
     };
   },
   methods: {
-    validateForm(e) {
+    validateForm(e: { preventDefault: () => void; }) {
       e.preventDefault();
       this.error = "";
       var playlist_id = getIDfromURL(this.url);

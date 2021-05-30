@@ -22,7 +22,9 @@ async function createWindow() {
       nodeIntegration: (process.env
           .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
       contextIsolation: !(process.env
-          .ELECTRON_NODE_INTEGRATION as unknown) as boolean
+          .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
+      nativeWindowOpen: true
+
     }
   })
 
