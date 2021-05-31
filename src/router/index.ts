@@ -9,8 +9,13 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     name: 'converting',
-    path: '/coverting',
-    component: () => import('../views/playlist.vue')
+    path: '/converting',
+    component: () => import('../views/converting.vue')
+  },
+  {
+    name: 'tagging',
+    path: '/tagging',
+    component: () => import('../views/tagging.vue')
   },
   {
     name: 'playlist',

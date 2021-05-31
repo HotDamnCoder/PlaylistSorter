@@ -2,7 +2,6 @@ class PlaylistId {
     static reExps: { [index: string]: RegExp } = {
         'youtube': /([\d\w_-]){28,}/g,
         'spotify': /(?<=playlist\/).{42}/g
-
     }
 
     id = "";
