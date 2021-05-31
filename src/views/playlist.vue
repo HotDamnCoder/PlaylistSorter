@@ -30,8 +30,9 @@
 
 import { defineComponent } from "vue";
 import navbar from "@/components/navbar.vue"; // @ is an alias to /src
-import { ipcRenderer } from "electron";
-import { AUTH_URL, SPOTIFY_API } from "@/assets/TS/spotify_api";
+import { ipcRenderer } from "electron"; 
+import {CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, AUTH_URL} from "@/assets/TS/spotify_api"
+import SpotifyWebApi from "spotify-web-api-node";
 import { loginToGoogle, getPlaylistInfo } from "@/assets/TS/google_api";
 
 export default defineComponent({
@@ -59,11 +60,15 @@ export default defineComponent({
         }
       });
     } else {
+      const SPOTIFY_API = new SpotifyWebApi({
+        clientId: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        redirectUri: REDIRECT_URI,
+      });
       ipcRenderer.on("spotify_oauth", (_event, access_token) => {
         SPOTIFY_API.setAccessToken(access_token);
         SPOTIFY_API.getPlaylist(this.playlist_id).then(
           (data: any) => {
-            console.log(data.body);
             this.playlist_name = data["body"]["name"];
             this.thumbnail_url = data["body"]["images"][1]["url"];
           },
@@ -72,7 +77,6 @@ export default defineComponent({
           }
         );
       });
-      // Get Spotify OAuth code
       window.open(AUTH_URL);
     }
   },
