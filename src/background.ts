@@ -3,6 +3,8 @@
 import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import { REDIRECT_URI, AUTH_TOKEN_RE } from '@/assets/TS/spotify_api'
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Scheme must be registered before the app is ready
@@ -16,16 +18,33 @@ async function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: (process.env
-          .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
+        .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
       contextIsolation: !(process.env
-          .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
+        .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
       nativeWindowOpen: true
 
     }
+  })
+  // Redirect Spotify OAuth code to renderer
+  win.webContents.on('did-create-window', (childWindow) => {
+    childWindow.webContents.on('will-redirect', (event, url) => {
+      if (url.includes(REDIRECT_URI)) {
+        childWindow.destroy();
+        const access_token_matches = url.match(AUTH_TOKEN_RE);
+        if (access_token_matches) {
+          if (access_token_matches.length === 1) {
+            win.webContents.send('spotify_oauth', access_token_matches[0])
+          }
+          else {
+            console.log('Error with spotify'); //!  Add error code
+          }
+        }
+
+      }
+    }) //
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {

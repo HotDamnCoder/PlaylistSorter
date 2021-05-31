@@ -26,54 +26,55 @@
 </style>
 
 <script lang="ts">
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { defineComponent } from "vue";
 import navbar from "@/components/navbar.vue"; // @ is an alias to /src
+import { ipcRenderer } from "electron";
+import { AUTH_URL, SPOTIFY_API } from "@/assets/TS/spotify_api";
+import { loginToGoogle, getPlaylistInfo } from "@/assets/TS/google_api";
 
 export default defineComponent({
   data() {
     return {
       thumbnail_url: "",
       playlist_name: "",
-      playlist_id: this.$route.query.playlist_id,
-      playlist_type: this.$route.query.playlist_type,
+      playlist_id: this.$route.query.playlist_id as string,
+      playlist_type: this.$route.query.playlist_type as string,
     };
   },
   components: {
     navbar,
   },
-  methods: {
-    loginToGoogle() {
-      return this.$gapi.login();
-    },
-    loginToSpotify(){console.log()},
-    getPlaylistThumbnail() {
-      this.$gapi.getGapiClient().then((gapi) => {
-        gapi.client.youtube.playlists
-          .list({
-            part: ["snippet"],
-            id: [this.playlist_id],
-          })
-          .then(
-            (response: {
-              result: {
-                items: {
-                  snippet: {
-                    thumbnails: { medium: { url: string } };
-                    title: string;
-                  };
-                }[];
-              };
-            }) => {
-              this.playlist_name = response.result.items[0].snippet.title;
-              this.thumbnail_url =
-                response.result.items[0].snippet.thumbnails.medium.url;
+  beforeMount() {
+    if (this.playlist_type === "youtube") {
+      loginToGoogle(this.$gapi).then((loginResponse) => {
+        if (loginResponse.hasGrantedScopes) {
+          getPlaylistInfo(this.$gapi, this.playlist_id).then(
+            (playlist_info: any) => {
+              this.playlist_name = playlist_info.snippet.title;
+              this.thumbnail_url = playlist_info.snippet.thumbnails.medium.url;
             }
           );
+        }
       });
-    },
-  },
-  beforeMount() {
-    this.loginToGoogle().then(this.getPlaylistThumbnail)
+    } else {
+      ipcRenderer.on("spotify_oauth", (_event, access_token) => {
+        SPOTIFY_API.setAccessToken(access_token);
+        SPOTIFY_API.getPlaylist(this.playlist_id).then(
+          (data: any) => {
+            console.log(data.body);
+            this.playlist_name = data["body"]["name"];
+            this.thumbnail_url = data["body"]["images"][1]["url"];
+          },
+          function (err: any) {
+            console.log("Something went wrong!", err);
+          }
+        );
+      });
+      // Get Spotify OAuth code
+      window.open(AUTH_URL);
+    }
   },
 });
 </script>

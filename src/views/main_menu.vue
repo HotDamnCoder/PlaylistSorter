@@ -45,30 +45,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
-class PlaylistId {
-  static reExps : {[index: string]: RegExp} = {
-    'youtube' : /([\d\w_-]){28,}/g,
-    'spotify' : /a/ //! Add this regex
-
-  }
-
-  id = "";
-  type = "";
-  constructor(url: string){
-    for (let type in PlaylistId.reExps){
-      let matches = url.match(PlaylistId.reExps[type]);
-      if (matches?.length == 1){
-        this.id = matches[0]
-        this.type = type
-        break;
-      }
-    }
-    if (!this.id || !this.type){
-      throw new Error('Invalid url')
-    }
-  }
-}
+import { PlaylistId } from "@/assets/TS/PlaylistID";
 
 export default defineComponent({
   data() {
@@ -81,18 +58,17 @@ export default defineComponent({
     validateForm(e: { preventDefault: () => void }) {
       e.preventDefault(); //*  Prevents default form action
       this.error = "";
-      try{
+      try {
         let playlist_id = new PlaylistId(this.url);
         this.$router.push({
           name: "playlist",
-          query: { 
+          query: {
             playlist_id: playlist_id.id,
-            playlist_type: playlist_id.type
+            playlist_type: playlist_id.type,
           },
         });
-      }
-      catch(error){
-        this.error = error.message
+      } catch (error) {
+        this.error = error.message;
       }
     },
   },
