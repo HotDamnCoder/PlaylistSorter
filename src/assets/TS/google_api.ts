@@ -21,6 +21,24 @@ function listYoutubePlaylists(googleAPI: any, playlistID: string): Promise<any> 
     })
 }
 
+const listYoutubePlaylistItems = (googleAPI: any, playlistID: string, playlistItems = [], nextPageToken = "") => {
+    return googleAPI.client.youtube.playlistItems.list({
+        part: ["snippet"],
+        playlistId: [playlistID],
+        pageToken: nextPageToken,
+        maxResults: 50
+    }).then((response: any) => {
+        nextPageToken = response['result']['nextPageToken']
+        playlistItems = playlistItems.concat(response['result']['items'])
+        if (nextPageToken !== undefined && nextPageToken !== ""){
+            return listYoutubePlaylistItems(googleAPI, playlistID, playlistItems, nextPageToken)
+        }
+        else{
+            return playlistItems
+        }
+    })
+}
+
 function getPlaylistInfo(vueGapi: VueGapi, playlistID: string): Promise<any> {
     return getGoogleAPI(vueGapi).then((googleAPI) => {
         return listYoutubePlaylists(googleAPI, playlistID).then((response: any) => {
@@ -28,4 +46,10 @@ function getPlaylistInfo(vueGapi: VueGapi, playlistID: string): Promise<any> {
         })
     })
 }
-export { CLIENT_ID, SCOPE, DISCOVERY_DOCS, loginToGoogle, getPlaylistInfo }
+
+function getPlaylistItems(vueGapi: VueGapi, playlistID: string): Promise<any> {
+    return getGoogleAPI(vueGapi).then((googleAPI) => {
+        return listYoutubePlaylistItems(googleAPI, playlistID);
+    })
+}
+export { CLIENT_ID, SCOPE, DISCOVERY_DOCS, loginToGoogle, getPlaylistInfo, getPlaylistItems }

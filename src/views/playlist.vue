@@ -46,7 +46,7 @@ import {
   AUTH_URL,
 } from "@/assets/TS/spotify_api";
 import SpotifyWebApi from "spotify-web-api-node";
-import { loginToGoogle, getPlaylistInfo } from "@/assets/TS/google_api";
+import { loginToGoogle, getPlaylistInfo, getPlaylistItems } from "@/assets/TS/google_api";
 
 export default defineComponent({
   data() {
@@ -62,16 +62,19 @@ export default defineComponent({
   },
   methods: {
     goToConverting(){
+
       this.$router.push({name:"converting"});
     },
     goToTagging(){
-      this.$router.push({name:"tagging"})
+      getPlaylistItems(this.$gapi, this.playlist_id).then((items: [ ]) =>{
+        console.log(items);
+        this.$router.push({name:"tagging", query:{playlist_items: items}})
+      })
     }
   },
 
   beforeMount() {
-    this.playlist_type = this.playlist_type.charAt(0).toUpperCase() + this.playlist_type.substring(1)
-    if (this.playlist_type === "youtube") {
+    if (this.playlist_type.toLowerCase() === "youtube") {
       loginToGoogle(this.$gapi).then((loginResponse) => {
         if (loginResponse.hasGrantedScopes) {
           getPlaylistInfo(this.$gapi, this.playlist_id).then(

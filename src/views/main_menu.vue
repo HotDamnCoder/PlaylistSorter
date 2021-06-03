@@ -68,7 +68,7 @@ export default defineComponent({
           },
         });
       } catch (error) {
-        this.error = error.message;
+        this.error = error.message; //
       }
     },
   },
