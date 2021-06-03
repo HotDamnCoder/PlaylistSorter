@@ -12,7 +12,7 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
-async function createWindow() {
+async function createWindow () {
   // Create the browser window.
   const win = new BrowserWindow({
     width: 800,
@@ -32,17 +32,15 @@ async function createWindow() {
   win.webContents.on('did-create-window', (childWindow) => {
     childWindow.webContents.on('will-redirect', (event, url) => {
       if (url.includes(REDIRECT_URI)) {
-        childWindow.destroy();
-        const access_token_matches = url.match(AUTH_TOKEN_RE);
-        if (access_token_matches) {
-          if (access_token_matches.length === 1) {
-            win.webContents.send('spotify_oauth', access_token_matches[0])
-          }
-          else {
-            console.log('Error with spotify'); //!  Add error code
+        childWindow.destroy()
+        const accessTokenMatches = url.match(AUTH_TOKEN_RE)
+        if (accessTokenMatches) {
+          if (accessTokenMatches.length === 1) {
+            win.webContents.send('spotify_oauth', accessTokenMatches[0])
+          } else {
+            console.log('Error with spotify') //!  Add error code
           }
         }
-
       }
     }) //
   })

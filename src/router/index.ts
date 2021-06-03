@@ -1,11 +1,10 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import main_menu from '../views/main_menu.vue'
-
+import mainMenu from '../views/main_menu.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    component: main_menu
+    component: mainMenu
   },
   {
     name: 'converting',
@@ -21,7 +20,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'playlist',
     path: '/playlist',
     component: () => import('../views/playlist.vue')
-  },
+  }
 
 ]
 

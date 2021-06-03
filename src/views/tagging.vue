@@ -10,22 +10,22 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from "vue";
-import navbar from "@/components/navbar.vue";
+import { defineComponent } from 'vue'
+import navbar from '@/components/navbar.vue'
 export default defineComponent({
   components: {
-    navbar,
+    navbar
   },
-  data() {
+  data () {
     return {
-      playlist_items: this.$route.query.playlist_items as [],
-    };
+      playlist_items: this.$route.query.playlist_items as []
+    }
   },
-  beforeMount(){
-    console.log(this.playlist_items);
-    for (let item in this.playlist_items){
+  beforeMount () {
+    console.log(this.playlist_items)
+    for (const item in this.playlist_items) {
       console.log(this.playlist_items[item])
     }
   }
-});
+})
 </script>

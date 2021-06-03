@@ -44,33 +44,33 @@
 </style>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { PlaylistId } from "@/assets/TS/PlaylistID";
+import { defineComponent } from 'vue'
+import { PlaylistId } from '@/assets/TS/PlaylistID'
 
 export default defineComponent({
-  data() {
+  data () {
     return {
-      error: "",
-      url: "",
-    };
+      error: '',
+      url: ''
+    }
   },
   methods: {
-    validateForm(e: { preventDefault: () => void }) {
-      e.preventDefault(); //*  Prevents default form action
-      this.error = "";
+    validateForm (e: { preventDefault: () => void }) {
+      e.preventDefault() //*  Prevents default form action
+      this.error = ''
       try {
-        let playlist_id = new PlaylistId(this.url);
+        const playlistId = new PlaylistId(this.url)
         this.$router.push({
-          name: "playlist",
+          name: 'playlist',
           query: {
-            playlist_id: playlist_id.id,
-            playlist_type: playlist_id.type,
-          },
-        });
+            playlist_id: playlistId.id,
+            playlist_type: playlistId.type
+          }
+        })
       } catch (error) {
-        this.error = error.message; //
+        this.error = error.message //
       }
-    },
-  },
-});
+    }
+  }
+})
 </script>

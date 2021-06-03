@@ -36,75 +36,74 @@
 <script lang="ts">
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { defineComponent } from "vue";
-import navbar from "@/components/navbar.vue"; // @ is an alias to /src
-import { ipcRenderer } from "electron";
+import { defineComponent } from 'vue'
+import navbar from '@/components/navbar.vue' // @ is an alias to /src
+import { ipcRenderer } from 'electron'
 import {
   CLIENT_ID,
   CLIENT_SECRET,
   REDIRECT_URI,
-  AUTH_URL,
-} from "@/assets/TS/spotify_api";
-import SpotifyWebApi from "spotify-web-api-node";
-import { loginToGoogle, getPlaylistInfo, getPlaylistItems } from "@/assets/TS/google_api";
+  AUTH_URL
+} from '@/assets/TS/spotify_api'
+import SpotifyWebApi from 'spotify-web-api-node'
+import { loginToGoogle, getPlaylistInfo, getPlaylistItems } from '@/assets/TS/google_api'
 
 export default defineComponent({
-  data() {
+  data () {
     return {
-      thumbnail_url: "",
-      playlist_name: "",
+      thumbnail_url: '',
+      playlist_name: '',
       playlist_id: this.$route.query.playlist_id as string,
-      playlist_type: this.$route.query.playlist_type as string,
-    };
+      playlist_type: this.$route.query.playlist_type as string
+    }
   },
   components: {
-    navbar,
+    navbar
   },
   methods: {
-    goToConverting(){
-
-      this.$router.push({name:"converting"});
+    goToConverting () {
+      this.$router.push({ name: 'converting' })
     },
-    goToTagging(){
-      getPlaylistItems(this.$gapi, this.playlist_id).then((items: [ ]) =>{
-        console.log(items);
-        this.$router.push({name:"tagging", query:{playlist_items: items}})
+    goToTagging () {
+      getPlaylistItems(this.$gapi, this.playlist_id).then((items: [ ]) => {
+        console.log(items)
+        this.$router.push({ name: 'tagging', query: { playlist_items: items } })
       })
     }
   },
 
-  beforeMount() {
-    if (this.playlist_type.toLowerCase() === "youtube") {
+  beforeMount () {
+    if (this.playlist_type.toLowerCase() === 'youtube') {
       loginToGoogle(this.$gapi).then((loginResponse) => {
         if (loginResponse.hasGrantedScopes) {
           getPlaylistInfo(this.$gapi, this.playlist_id).then(
-            (playlist_info: any) => {
-              this.playlist_name = playlist_info.snippet.title;
-              this.thumbnail_url = playlist_info.snippet.thumbnails.medium.url;
+            (playlistInfo: any) => {
+              this.playlist_name = playlistInfo.snippet.title
+              this.thumbnail_url = playlistInfo.snippet.thumbnails.medium.url
             }
-          );
+          )
         }
-      });
+      })
     } else {
       const SPOTIFY_API = new SpotifyWebApi({
         clientId: CLIENT_ID,
         clientSecret: CLIENT_SECRET,
-        redirectUri: REDIRECT_URI,
-      });
-      ipcRenderer.on("spotify_oauth", (_event, access_token) => {
-        SPOTIFY_API.setAccessToken(access_token);
+        redirectUri: REDIRECT_URI
+      })
+      ipcRenderer.on('spotify_oauth', (_event, accessToken) => {
+        SPOTIFY_API.setAccessToken(accessToken)
         SPOTIFY_API.getPlaylist(this.playlist_id).then(
           (data: any) => {
-            this.playlist_name = data["body"]["name"];
-            this.thumbnail_url = data["body"]["images"][1]["url"];
+            this.playlist_name = data.body.name
+            this.thumbnail_url = data.body.images[1].url
           },
           function (err: any) {
-            console.log("Something went wrong!", err);
+            console.log('Something went wrong!', err)
           }
-        );
-      });
-      window.open(AUTH_URL);
+        )
+      })
+      window.open(AUTH_URL)
     }
-  },
-});
+  }
+})
 </script>

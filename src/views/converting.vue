@@ -5,11 +5,11 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from "vue";
-import navbar from "@/components/navbar.vue";
+import { defineComponent } from 'vue'
+import navbar from '@/components/navbar.vue'
 export default defineComponent({
   components: {
-    navbar,
+    navbar
   }
-});
+})
 </script>
