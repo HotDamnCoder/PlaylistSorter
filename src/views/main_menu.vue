@@ -46,6 +46,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { PlaylistId } from '@/assets/TS/PlaylistID'
+import { mapMutations } from 'vuex'
 
 export default defineComponent({
   data () {
@@ -59,18 +60,13 @@ export default defineComponent({
       e.preventDefault() //*  Prevents default form action
       this.error = ''
       try {
-        const playlistId = new PlaylistId(this.url)
-        this.$router.push({
-          name: 'playlist',
-          query: {
-            playlist_id: playlistId.id,
-            playlist_type: playlistId.type
-          }
-        })
+        this.setPlaylistID(new PlaylistId(this.url))
+        this.$router.push('playlist')
       } catch (error) {
         this.error = error.message //
       }
-    }
+    },
+    ...mapMutations(['setPlaylistID'])
   }
 })
 </script>

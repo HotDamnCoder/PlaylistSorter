@@ -1,5 +1,5 @@
 class PlaylistId {
-    static reExps: { [index: string]: RegExp } = {
+    reExps: { [index: string]: RegExp } = {
       Youtube: /([\d\w_-]){28,}/g,
       Spotify: /(?<=playlist\/).{42}/g
     }
@@ -8,8 +8,8 @@ class PlaylistId {
     type = '';
 
     constructor (url: string) {
-      for (const type in PlaylistId.reExps) {
-        const matches = url.match(PlaylistId.reExps[type])
+      for (const type in this.reExps) {
+        const matches = url.match(this.reExps[type])
         if (matches?.length === 1) {
           this.id = matches[0]
           this.type = type

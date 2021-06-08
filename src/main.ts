@@ -3,12 +3,12 @@ import App from './App.vue'
 import router from './router'
 import VueGapi from 'vue-gapi'
 import store from './store'
-import { CLIENT_ID, SCOPE, DISCOVERY_DOCS } from '@/assets/TS/google_api'
+import { YOUTUBE_CLIENT_ID, YOUTUBE_SCOPE, YOUTUBE_DISCOVERY_DOCS } from '@/assets/TS/credentials'
 
 const app = createApp(App).use(store).use(router).use(VueGapi, {
-  clientId: CLIENT_ID,
-  scope: SCOPE,
-  discoveryDocs: DISCOVERY_DOCS
+  clientId: YOUTUBE_CLIENT_ID,
+  scope: YOUTUBE_SCOPE,
+  discoveryDocs: YOUTUBE_DISCOVERY_DOCS
 })
 
 app.mount('#app')

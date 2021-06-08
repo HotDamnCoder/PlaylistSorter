@@ -2,24 +2,44 @@
   <navbar></navbar>
   <section class="section pt-3">
     <div
-      class="container d-flex flex-column align-items-center justify-content-center"
+      class="
+        container
+        d-flex
+        flex-column
+        align-items-center
+        justify-content-center
+      "
     >
       <div class="row">
-        <h1 class="text-center" v-if="playlist_name">Playlist "{{ playlist_name }}" from {{ playlist_type }}</h1>
+        <h1 class="text-center" v-if="playlistName">
+          Playlist "{{ playlistName }}" from {{ playlistType }}
+        </h1>
       </div>
       <div class="row pt-3">
         <img
           class="img-fluid img-thumbnail rounded"
-          :src="thumbnail_url"
-          v-if="thumbnail_url"
+          :src="playlistThumbnailURL"
+          v-if="playlistThumbnailURL"
         />
       </div>
       <div class="row pt-3">
         <div class="col-md-auto">
-          <button vtype="button" class="btn btn-primary btn-lg" @click="goToTagging()">Tag it</button>
+          <button
+            vtype="button"
+            class="btn btn-primary btn-lg"
+            @click="goToTagging()"
+          >
+            Tag it
+          </button>
         </div>
         <div class="col-md-auto">
-          <button type="button" class="btn btn-primary btn-lg" @click="goToConverting()">Convert it</button>
+          <button
+            type="button"
+            class="btn btn-primary btn-lg"
+            @click="goToConverting()"
+          >
+            Convert it
+          </button>
         </div>
       </div>
     </div>
@@ -38,72 +58,50 @@
 
 import { defineComponent } from 'vue'
 import navbar from '@/components/navbar.vue' // @ is an alias to /src
-import { ipcRenderer } from 'electron'
-import {
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URI,
-  AUTH_URL
-} from '@/assets/TS/spotify_api'
-import SpotifyWebApi from 'spotify-web-api-node'
-import { loginToGoogle, getPlaylistInfo, getPlaylistItems } from '@/assets/TS/google_api'
+import { IPlaylistAPI } from '@/assets/TS/IPlaylistAPI'
+import { SpotifyAPI } from '@/assets/TS/SpotifyAPI'
+import { YoutubeAPI } from '@/assets/TS/YoutubeAPI'
+import { mapMutations } from 'vuex'
 
 export default defineComponent({
-  data () {
-    return {
-      thumbnail_url: '',
-      playlist_name: '',
-      playlist_id: this.$route.query.playlist_id as string,
-      playlist_type: this.$route.query.playlist_type as string
+  computed: {
+    playlistID: function () {
+      return this.$store.getters.getPlaylistID().id as string
+    },
+    playlistType: function () {
+      return this.$store.getters.getPlaylistID().type as string
+    },
+    playlistName: function () {
+      return this.$store.getters.getPlaylistName() as string
+    },
+    playlistThumbnailURL: function () {
+      return this.$store.getters.getPlaylistThumbnailURL() as string
     }
   },
   components: {
     navbar
   },
   methods: {
+    ...mapMutations(['setPlaylistAPI', 'setPlaylistName', 'setPlaylistThumbnailURL']),
     goToConverting () {
       this.$router.push({ name: 'converting' })
     },
     goToTagging () {
-      getPlaylistItems(this.$gapi, this.playlist_id).then((items: [ ]) => {
-        console.log(items)
-        this.$router.push({ name: 'tagging', query: { playlist_items: items } })
-      })
+      return this
     }
   },
-
-  beforeMount () {
-    if (this.playlist_type.toLowerCase() === 'youtube') {
-      loginToGoogle(this.$gapi).then((loginResponse) => {
-        if (loginResponse.hasGrantedScopes) {
-          getPlaylistInfo(this.$gapi, this.playlist_id).then(
-            (playlistInfo: any) => {
-              this.playlist_name = playlistInfo.snippet.title
-              this.thumbnail_url = playlistInfo.snippet.thumbnails.medium.url
-            }
-          )
-        }
-      })
+  mounted () {
+    var playlistAPI: IPlaylistAPI
+    if (this.playlistType.toLowerCase() === 'youtube') {
+      playlistAPI = new YoutubeAPI(this.$gapi)
     } else {
-      const SPOTIFY_API = new SpotifyWebApi({
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        redirectUri: REDIRECT_URI
-      })
-      ipcRenderer.on('spotify_oauth', (_event, accessToken) => {
-        SPOTIFY_API.setAccessToken(accessToken)
-        SPOTIFY_API.getPlaylist(this.playlist_id).then(
-          (data: any) => {
-            this.playlist_name = data.body.name
-            this.thumbnail_url = data.body.images[1].url
-          },
-          function (err: any) {
-            console.log('Something went wrong!', err)
-          }
-        )
-      })
-      window.open(AUTH_URL)
+      playlistAPI = new SpotifyAPI()
     }
+    this.setPlaylistAPI(playlistAPI)
+    playlistAPI.loginToAPI()
+    playlistAPI.getPlaylistInfo(this.playlistID).then((info) => {
+      console.log(info)
+    })
   }
 })
 </script>

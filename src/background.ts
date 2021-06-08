@@ -3,7 +3,7 @@
 import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import { REDIRECT_URI, AUTH_TOKEN_RE } from '@/assets/TS/spotify_api'
+import { SPOTIFY_REDIRECT_URI, SPOTIFY_AUTH_TOKEN_RE } from '@/assets/TS/credentials'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -31,17 +31,7 @@ async function createWindow () {
   // Redirect Spotify OAuth code to renderer
   win.webContents.on('did-create-window', (childWindow) => {
     childWindow.webContents.on('will-redirect', (event, url) => {
-      if (url.includes(REDIRECT_URI)) {
-        childWindow.destroy()
-        const accessTokenMatches = url.match(AUTH_TOKEN_RE)
-        if (accessTokenMatches) {
-          if (accessTokenMatches.length === 1) {
-            win.webContents.send('spotify_oauth', accessTokenMatches[0])
-          } else {
-            console.log('Error with spotify') //!  Add error code
-          }
-        }
-      }
+      win.webContents.send('spotify_auth', url)
     }) //
   })
 
