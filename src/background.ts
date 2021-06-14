@@ -31,8 +31,18 @@ async function createWindow () {
   // Redirect Spotify OAuth code to renderer
   win.webContents.on('did-create-window', (childWindow) => {
     childWindow.webContents.on('will-redirect', (event, url) => {
-      win.webContents.send('spotify_auth', url)
-    }) //
+      if (url.includes(SPOTIFY_REDIRECT_URI)) {
+        const accessTokenMatches = url.match(SPOTIFY_AUTH_TOKEN_RE)
+        if (accessTokenMatches) {
+          if (accessTokenMatches.length === 1) {
+            win.webContents.send('spotify_oauth', accessTokenMatches[0])
+          } else {
+            console.log('Error with spotify') //!  Add error code
+          }
+        }
+        childWindow.destroy()
+      }
+    })
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {

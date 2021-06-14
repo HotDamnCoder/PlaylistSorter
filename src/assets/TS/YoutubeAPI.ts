@@ -14,8 +14,10 @@ export class YoutubeAPI implements IPlaylistAPI {
       return this.VUE_GAPI.getGapiClient()
     }
 
-    public loginToAPI () {
-      return this.VUE_GAPI.login()
+    public loginToAPI (): Promise<boolean> {
+      return this.VUE_GAPI.login().then((loginResponse) => {
+        return loginResponse.hasGrantedScopes
+      })
     }
 
     private listYoutubePlaylists (googleAPI: any, playlistID: string): Promise<any> {

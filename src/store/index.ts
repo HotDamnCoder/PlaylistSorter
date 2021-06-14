@@ -14,7 +14,7 @@ const store = createStore({
       state.playlistID = id
     },
     setPlaylistAPI: (state, api: IPlaylistAPI) => {
-      state.playlistID = api
+      state.playlistAPI = api
     },
     setPlaylistName: (state, name: string) => {
       state.playlistName = name
@@ -39,7 +39,7 @@ const store = createStore({
     getPlaylistName: (state) => () => {
       return state.playlistName as string
     },
-    getplaylistThumbnailURL: (state) => () => {
+    getPlaylistThumbnailURL: (state) => () => {
       return state.playlistThumbnailURL as string
     },
     getPlaylistItems: (state) => () => {

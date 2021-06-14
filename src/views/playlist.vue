@@ -98,9 +98,12 @@ export default defineComponent({
       playlistAPI = new SpotifyAPI()
     }
     this.setPlaylistAPI(playlistAPI)
-    playlistAPI.loginToAPI()
-    playlistAPI.getPlaylistInfo(this.playlistID).then((info) => {
-      console.log(info)
+    playlistAPI.loginToAPI().then((logedIn) => {
+      if (logedIn) {
+        playlistAPI.getPlaylistInfo(this.playlistID).then((info) => {
+          console.log(info)
+        })
+      }
     })
   }
 })
