@@ -1,13 +1,14 @@
 import { createStore } from 'vuex'
 import { PlaylistId } from '@/assets/TS/PlaylistID'
 import { IPlaylistAPI } from '@/assets/TS/IPlaylistAPI'
+import { VideoInfo } from '@/assets/TS/VideoInfo'
 const store = createStore({
   state: {
     playlistID: {},
     playlistAPI: {},
     playlistName: '',
     playlistThumbnailURL: '',
-    playlistItems: {}
+    playlistItems: []
   },
   mutations: {
     setPlaylistID: (state, id: PlaylistId) => {
@@ -43,7 +44,7 @@ const store = createStore({
       return state.playlistThumbnailURL as string
     },
     getPlaylistItems: (state) => () => {
-      return state.playlistItems as string
+      return state.playlistItems as Array<VideoInfo>
     }
   }
 })

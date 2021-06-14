@@ -3,7 +3,7 @@
 import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import { SPOTIFY_REDIRECT_URI, SPOTIFY_AUTH_TOKEN_RE } from '@/assets/TS/credentials'
+import { SPOTIFY_REDIRECT_URI, SPOTIFY_ERROR_RE, SPOTIFY_AUTH_TOKEN_RE } from '@/assets/TS/credentials'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -32,21 +32,26 @@ async function createWindow () {
   win.webContents.on('did-create-window', (childWindow) => {
     childWindow.webContents.on('will-redirect', (event, url) => {
       if (url.includes(SPOTIFY_REDIRECT_URI)) {
-        const accessTokenMatches = url.match(SPOTIFY_AUTH_TOKEN_RE)
-        if (accessTokenMatches) {
-          if (accessTokenMatches.length === 1) {
-            win.webContents.send('spotify_oauth', accessTokenMatches[0])
-          } else {
-            console.log('Error with spotify') //!  Add error code
+        childWindow.destroy()
+        if (url.includes('error')) {
+          const errorCodeMatches = url.match(SPOTIFY_ERROR_RE)
+          if (errorCodeMatches) {
+            win.webContents.send('spotify_oauth_error', errorCodeMatches[0])
+          }
+        } else {
+          const accessTokenMatches = url.match(SPOTIFY_AUTH_TOKEN_RE)
+          if (accessTokenMatches) {
+            if (accessTokenMatches) {
+              win.webContents.send('spotify_oauth_access', accessTokenMatches[0])
+            }
           }
         }
-        childWindow.destroy()
       }
     })
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
-    // Load the url of the dev server if in development mode
+  // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
     if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {

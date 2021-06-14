@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { VideoInfo } from './VideoInfo'
 export interface IPlaylistAPI {
     loginToAPI() : Promise<boolean>;
-    getPlaylistInfo(id: string) : Promise<any>
-    getPlaylistItems(id: string) : Promise<any>
+    getPlaylistInfo(id: string) : Promise<VideoInfo>
+    getPlaylistItems(id: string) : Promise<Array<VideoInfo>>
 }

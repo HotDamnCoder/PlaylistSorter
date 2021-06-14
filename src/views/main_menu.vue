@@ -1,8 +1,6 @@
 <template>
   <section class="section">
-    <div
-      class="container d-flex flex-grow-1 flex-column align-items-center justify-content-center"
-    >
+    <div class="container d-flex flex-grow-1 flex-column align-items-center justify-content-center">
       <div class="row">
         <h1>Playlist fucker</h1>
       </div>

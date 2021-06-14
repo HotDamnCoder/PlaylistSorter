@@ -3,6 +3,7 @@
   <section class="section pt-3">
     <div
       class="
+        flex-grow-1
         container
         d-flex
         flex-column
@@ -54,14 +55,14 @@
 </style>
 
 <script lang="ts">
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { defineComponent } from 'vue'
 import navbar from '@/components/navbar.vue' // @ is an alias to /src
 import { IPlaylistAPI } from '@/assets/TS/IPlaylistAPI'
 import { SpotifyAPI } from '@/assets/TS/SpotifyAPI'
 import { YoutubeAPI } from '@/assets/TS/YoutubeAPI'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex'
+
+import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI, SPOTIFY_SCOPE } from '@/assets/TS/credentials'
 
 export default defineComponent({
   computed: {
@@ -76,7 +77,8 @@ export default defineComponent({
     },
     playlistThumbnailURL: function () {
       return this.$store.getters.getPlaylistThumbnailURL() as string
-    }
+    },
+    ...mapGetters(['getPlaylistAPI'])
   },
   components: {
     navbar
@@ -84,27 +86,30 @@ export default defineComponent({
   methods: {
     ...mapMutations(['setPlaylistAPI', 'setPlaylistName', 'setPlaylistThumbnailURL']),
     goToConverting () {
-      this.$router.push({ name: 'converting' })
+      this.$router.push('converting')
     },
     goToTagging () {
-      return this
+      return this.$router.push('tagging')
     }
   },
   mounted () {
-    var playlistAPI: IPlaylistAPI
-    if (this.playlistType.toLowerCase() === 'youtube') {
-      playlistAPI = new YoutubeAPI(this.$gapi)
-    } else {
-      playlistAPI = new SpotifyAPI()
-    }
-    this.setPlaylistAPI(playlistAPI)
-    playlistAPI.loginToAPI().then((logedIn) => {
-      if (logedIn) {
-        playlistAPI.getPlaylistInfo(this.playlistID).then((info) => {
-          console.log(info)
-        })
+    if (this.getPlaylistAPI()) {
+      var playlistAPI: IPlaylistAPI
+      if (this.playlistType.toLowerCase() === 'youtube') {
+        playlistAPI = new YoutubeAPI(this.$gapi)
+      } else {
+        playlistAPI = new SpotifyAPI(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_SCOPE, SPOTIFY_REDIRECT_URI)
       }
-    })
+      this.setPlaylistAPI(playlistAPI)
+      playlistAPI.loginToAPI().then((logedIn) => {
+        if (logedIn) {
+          playlistAPI.getPlaylistInfo(this.playlistID).then((info) => {
+            this.setPlaylistName(info.name)
+            this.setPlaylistThumbnailURL(info.thumbnails.high)
+          })
+        }
+      })
+    }
   }
 })
 </script>
