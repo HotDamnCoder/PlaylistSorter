@@ -1,10 +1,9 @@
 <template>
-  <section class="section">
-    <div class="container d-flex flex-grow-1 flex-column align-items-center justify-content-center">
+  <centered-container>
       <div class="row">
         <h1>Playlist fucker</h1>
       </div>
-      <div class="row mt-3">
+      <div class="row pt-3">
         <form @submit="validateForm" novalidate="true">
           <label class="form-label">Type in playlist url</label>
           <div class="input-group">
@@ -20,8 +19,7 @@
           </div>
         </form>
       </div>
-    </div>
-  </section>
+  </centered-container>
 </template>
 
 <style lang="scss" scoped>
@@ -43,6 +41,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import CenteredContainer from '@/components/CenteredContainer.vue'
 import { PlaylistId } from '@/assets/TS/PlaylistID'
 import { mapMutations } from 'vuex'
 
@@ -65,6 +64,9 @@ export default defineComponent({
       }
     },
     ...mapMutations(['setPlaylistID'])
+  },
+  components: {
+    CenteredContainer
   }
 })
 </script>

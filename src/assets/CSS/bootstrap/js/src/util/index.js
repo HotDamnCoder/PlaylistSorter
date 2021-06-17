@@ -131,7 +131,7 @@ const emulateTransitionEnd = (element, duration) => {
   const durationPadding = 5
   const emulatedDuration = duration + durationPadding
 
-  function listener() {
+  function listener () {
     called = true
     element.removeEventListener(TRANSITION_END, listener)
   }

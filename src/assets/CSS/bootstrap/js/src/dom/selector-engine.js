@@ -14,20 +14,20 @@
 const NODE_TEXT = 3
 
 const SelectorEngine = {
-  find(selector, element = document.documentElement) {
+  find (selector, element = document.documentElement) {
     return [].concat(...Element.prototype.querySelectorAll.call(element, selector))
   },
 
-  findOne(selector, element = document.documentElement) {
+  findOne (selector, element = document.documentElement) {
     return Element.prototype.querySelector.call(element, selector)
   },
 
-  children(element, selector) {
+  children (element, selector) {
     return [].concat(...element.children)
       .filter(child => child.matches(selector))
   },
 
-  parents(element, selector) {
+  parents (element, selector) {
     const parents = []
 
     let ancestor = element.parentNode
@@ -43,7 +43,7 @@ const SelectorEngine = {
     return parents
   },
 
-  prev(element, selector) {
+  prev (element, selector) {
     let previous = element.previousElementSibling
 
     while (previous) {
@@ -57,7 +57,7 @@ const SelectorEngine = {
     return []
   },
 
-  next(element, selector) {
+  next (element, selector) {
     let next = element.nextElementSibling
 
     while (next) {

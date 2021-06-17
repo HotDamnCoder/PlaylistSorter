@@ -68,29 +68,29 @@ const SELECTOR_CONTENT = '.popover-body'
 class Popover extends Tooltip {
   // Getters
 
-  static get Default() {
+  static get Default () {
     return Default
   }
 
-  static get NAME() {
+  static get NAME () {
     return NAME
   }
 
-  static get Event() {
+  static get Event () {
     return Event
   }
 
-  static get DefaultType() {
+  static get DefaultType () {
     return DefaultType
   }
 
   // Overrides
 
-  isWithContent() {
+  isWithContent () {
     return this.getTitle() || this._getContent()
   }
 
-  setContent() {
+  setContent () {
     const tip = this.getTipElement()
 
     // we use append for html objects to maintain js events
@@ -107,15 +107,15 @@ class Popover extends Tooltip {
 
   // Private
 
-  _addAttachmentClass(attachment) {
+  _addAttachmentClass (attachment) {
     this.getTipElement().classList.add(`${CLASS_PREFIX}-${this.updateAttachment(attachment)}`)
   }
 
-  _getContent() {
+  _getContent () {
     return this._element.getAttribute('data-bs-content') || this._config.content
   }
 
-  _cleanTipClass() {
+  _cleanTipClass () {
     const tip = this.getTipElement()
     const tabClass = tip.getAttribute('class').match(BSCLS_PREFIX_REGEX)
     if (tabClass !== null && tabClass.length > 0) {
@@ -126,7 +126,7 @@ class Popover extends Tooltip {
 
   // Static
 
-  static jQueryInterface(config) {
+  static jQueryInterface (config) {
     return this.each(function () {
       let data = Data.get(this, DATA_KEY)
       const _config = typeof config === 'object' ? config : null

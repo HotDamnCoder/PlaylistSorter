@@ -4,7 +4,10 @@ import { ipcRenderer } from 'electron'
 import { IPlaylistAPI } from './IPlaylistAPI'
 import SpotifyWebApi from 'spotify-web-api-node'
 import { VideoInfo } from './VideoInfo'
-
+import Store from 'electron-store'
+import { PlaylistInfo } from './PlaylistInfo'
+import { VideoTags } from './Tags'
+const store = new Store()
 export class SpotifyAPI implements IPlaylistAPI {
   private clientId: string
   private clientSecret: string
@@ -51,11 +54,14 @@ export class SpotifyAPI implements IPlaylistAPI {
     })
   }
 
-  public getPlaylistInfo (id: string): Promise<VideoInfo> {
+  public getPlaylistInfo (id: string): Promise<PlaylistInfo> {
     return this.api.getPlaylist(id).then((response) => {
-      const data = response.body
-      const thumbnails: {[index:string]:string} = { high: data.images[0].url, medium: data.images[1].url, low: data.images[2].url }
-      return { name: data.name, id: data.id, thumbnails: thumbnails }
+      const playlistData = response.body
+      const playlistThumbnails: {[index:string]:string} = { high: playlistData.images[0].url, medium: playlistData.images[1].url, low: playlistData.images[2].url }
+      const playlistName = playlistData.name
+      const playlistId = playlistData.id
+      const playlistInfo = { name: playlistName, id: playlistId, thumbnails: playlistThumbnails }
+      return playlistInfo
     })
   }
 
@@ -63,12 +69,40 @@ export class SpotifyAPI implements IPlaylistAPI {
     return this.api.getPlaylistTracks(id).then((response: any) => {
       const tracks = response.body.tracks.items
       const items = []
-      for (const trackNr in tracks) {
-        const data = tracks[trackNr].track.album
-        const thumbnails: {[index:string]:string} = { high: data.images[0].url, medium: data.images[1].url, low: data.images[2].url }
-        items.push({ name: data.name, id: data.id, thumbnails: thumbnails })
+      for (const trackIndex in tracks) {
+        const albumData = tracks[trackIndex].track.album
+        const videoThumbnails: {[index:string]:string} = { high: albumData.images[0].url, medium: albumData.images[1].url, low: albumData.images[2].url }
+        const videoName = albumData.name
+        const videoId = albumData.id
+        const videoTags = store.get(videoId, []) as VideoTags
+        const videoInfo = { name: videoName, id: videoId, thumbnails: videoThumbnails, tags: videoTags }
+        items.push(videoInfo)
       }
       return items
+    })
+  }
+
+  private getVideosURIS (videoIds: Array<string>) : Array<string> {
+    const videoIdsURIS = []
+    for (const videoIdIndex in videoIds) {
+      const videoId = videoIds[videoIdIndex]
+      videoIdsURIS.push(`spotify:track:${videoId}`)
+    }
+    return videoIds
+  }
+
+  public createPlaylist (name: string, videoIds: Array<string>): Promise<boolean> {
+    return this.api.createPlaylist(name).then((response) => {
+      const created = response.statusCode === 200
+      if (created) {
+        const playlistId = response.body.id
+        const videosURIS = this.getVideosURIS(videoIds)
+        return this.api.addTracksToPlaylist(playlistId, videosURIS).then((response) => {
+          return response.statusCode === 200
+        })
+      } else {
+        return created
+      }
     })
   }
 }

@@ -61,7 +61,7 @@ const SELECTOR_DATA_DISMISS = '[data-bs-dismiss="toast"]'
  */
 
 class Toast extends BaseComponent {
-  constructor(element, config) {
+  constructor (element, config) {
     super(element)
 
     this._config = this._getConfig(config)
@@ -73,21 +73,21 @@ class Toast extends BaseComponent {
 
   // Getters
 
-  static get DefaultType() {
+  static get DefaultType () {
     return DefaultType
   }
 
-  static get Default() {
+  static get Default () {
     return Default
   }
 
-  static get NAME() {
+  static get NAME () {
     return NAME
   }
 
   // Public
 
-  show() {
+  show () {
     const showEvent = EventHandler.trigger(this._element, EVENT_SHOW)
 
     if (showEvent.defaultPrevented) {
@@ -116,7 +116,7 @@ class Toast extends BaseComponent {
     this._queueCallback(complete, this._element, this._config.animation)
   }
 
-  hide() {
+  hide () {
     if (!this._element.classList.contains(CLASS_NAME_SHOW)) {
       return
     }
@@ -136,7 +136,7 @@ class Toast extends BaseComponent {
     this._queueCallback(complete, this._element, this._config.animation)
   }
 
-  dispose() {
+  dispose () {
     this._clearTimeout()
 
     if (this._element.classList.contains(CLASS_NAME_SHOW)) {
@@ -148,7 +148,7 @@ class Toast extends BaseComponent {
 
   // Private
 
-  _getConfig(config) {
+  _getConfig (config) {
     config = {
       ...Default,
       ...Manipulator.getDataAttributes(this._element),
@@ -160,7 +160,7 @@ class Toast extends BaseComponent {
     return config
   }
 
-  _maybeScheduleHide() {
+  _maybeScheduleHide () {
     if (!this._config.autohide) {
       return
     }
@@ -174,7 +174,7 @@ class Toast extends BaseComponent {
     }, this._config.delay)
   }
 
-  _onInteraction(event, isInteracting) {
+  _onInteraction (event, isInteracting) {
     switch (event.type) {
       case 'mouseover':
       case 'mouseout':
@@ -201,7 +201,7 @@ class Toast extends BaseComponent {
     this._maybeScheduleHide()
   }
 
-  _setListeners() {
+  _setListeners () {
     EventHandler.on(this._element, EVENT_CLICK_DISMISS, SELECTOR_DATA_DISMISS, () => this.hide())
     EventHandler.on(this._element, EVENT_MOUSEOVER, event => this._onInteraction(event, true))
     EventHandler.on(this._element, EVENT_MOUSEOUT, event => this._onInteraction(event, false))
@@ -209,14 +209,14 @@ class Toast extends BaseComponent {
     EventHandler.on(this._element, EVENT_FOCUSOUT, event => this._onInteraction(event, false))
   }
 
-  _clearTimeout() {
+  _clearTimeout () {
     clearTimeout(this._timeout)
     this._timeout = null
   }
 
   // Static
 
-  static jQueryInterface(config) {
+  static jQueryInterface (config) {
     return this.each(function () {
       let data = Data.get(this, DATA_KEY)
       const _config = typeof config === 'object' && config

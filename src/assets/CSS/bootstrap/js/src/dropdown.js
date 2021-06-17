@@ -96,7 +96,7 @@ const DefaultType = {
  */
 
 class Dropdown extends BaseComponent {
-  constructor(element, config) {
+  constructor (element, config) {
     super(element)
 
     this._popper = null
@@ -109,21 +109,21 @@ class Dropdown extends BaseComponent {
 
   // Getters
 
-  static get Default() {
+  static get Default () {
     return Default
   }
 
-  static get DefaultType() {
+  static get DefaultType () {
     return DefaultType
   }
 
-  static get NAME() {
+  static get NAME () {
     return NAME
   }
 
   // Public
 
-  toggle() {
+  toggle () {
     if (isDisabled(this._element)) {
       return
     }
@@ -138,7 +138,7 @@ class Dropdown extends BaseComponent {
     this.show()
   }
 
-  show() {
+  show () {
     if (isDisabled(this._element) || this._menu.classList.contains(CLASS_NAME_SHOW)) {
       return
     }
@@ -200,7 +200,7 @@ class Dropdown extends BaseComponent {
     EventHandler.trigger(this._element, EVENT_SHOWN, relatedTarget)
   }
 
-  hide() {
+  hide () {
     if (isDisabled(this._element) || !this._menu.classList.contains(CLASS_NAME_SHOW)) {
       return
     }
@@ -212,7 +212,7 @@ class Dropdown extends BaseComponent {
     this._completeHide(relatedTarget)
   }
 
-  dispose() {
+  dispose () {
     if (this._popper) {
       this._popper.destroy()
     }
@@ -220,7 +220,7 @@ class Dropdown extends BaseComponent {
     super.dispose()
   }
 
-  update() {
+  update () {
     this._inNavbar = this._detectNavbar()
     if (this._popper) {
       this._popper.update()
@@ -229,14 +229,14 @@ class Dropdown extends BaseComponent {
 
   // Private
 
-  _addEventListeners() {
+  _addEventListeners () {
     EventHandler.on(this._element, EVENT_CLICK, event => {
       event.preventDefault()
       this.toggle()
     })
   }
 
-  _completeHide(relatedTarget) {
+  _completeHide (relatedTarget) {
     const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE, relatedTarget)
     if (hideEvent.defaultPrevented) {
       return
@@ -260,7 +260,7 @@ class Dropdown extends BaseComponent {
     EventHandler.trigger(this._element, EVENT_HIDDEN, relatedTarget)
   }
 
-  _getConfig(config) {
+  _getConfig (config) {
     config = {
       ...this.constructor.Default,
       ...Manipulator.getDataAttributes(this._element),
@@ -279,11 +279,11 @@ class Dropdown extends BaseComponent {
     return config
   }
 
-  _getMenuElement() {
+  _getMenuElement () {
     return SelectorEngine.next(this._element, SELECTOR_MENU)[0]
   }
 
-  _getPlacement() {
+  _getPlacement () {
     const parentDropdown = this._element.parentNode
 
     if (parentDropdown.classList.contains(CLASS_NAME_DROPEND)) {
@@ -304,11 +304,11 @@ class Dropdown extends BaseComponent {
     return isEnd ? PLACEMENT_BOTTOMEND : PLACEMENT_BOTTOM
   }
 
-  _detectNavbar() {
+  _detectNavbar () {
     return this._element.closest(`.${CLASS_NAME_NAVBAR}`) !== null
   }
 
-  _getOffset() {
+  _getOffset () {
     const { offset } = this._config
 
     if (typeof offset === 'string') {
@@ -322,7 +322,7 @@ class Dropdown extends BaseComponent {
     return offset
   }
 
-  _getPopperConfig() {
+  _getPopperConfig () {
     const defaultBsPopperConfig = {
       placement: this._getPlacement(),
       modifiers: [{
@@ -353,7 +353,7 @@ class Dropdown extends BaseComponent {
     }
   }
 
-  _selectMenuItem(event) {
+  _selectMenuItem (event) {
     const items = SelectorEngine.find(SELECTOR_VISIBLE_ITEMS, this._menu).filter(isVisible)
 
     if (!items.length) {
@@ -380,7 +380,7 @@ class Dropdown extends BaseComponent {
 
   // Static
 
-  static dropdownInterface(element, config) {
+  static dropdownInterface (element, config) {
     let data = Data.get(element, DATA_KEY)
     const _config = typeof config === 'object' ? config : null
 
@@ -397,13 +397,13 @@ class Dropdown extends BaseComponent {
     }
   }
 
-  static jQueryInterface(config) {
+  static jQueryInterface (config) {
     return this.each(function () {
       Dropdown.dropdownInterface(this, config)
     })
   }
 
-  static clearMenus(event) {
+  static clearMenus (event) {
     if (event && (event.button === RIGHT_MOUSE_BUTTON || (event.type === 'keyup' && event.key !== TAB_KEY))) {
       return
     }
@@ -449,11 +449,11 @@ class Dropdown extends BaseComponent {
     }
   }
 
-  static getParentFromElement(element) {
+  static getParentFromElement (element) {
     return getElementFromSelector(element) || element.parentNode
   }
 
-  static dataApiKeydownHandler(event) {
+  static dataApiKeydownHandler (event) {
     // If not input/textarea:
     //  - And not a key in REGEXP_KEYDOWN => not a dropdown command
     // If input/textarea:
@@ -461,11 +461,11 @@ class Dropdown extends BaseComponent {
     //  - If key is other than escape
     //    - If key is not up or down => not a dropdown command
     //    - If trigger inside the menu => not a dropdown command
-    if (/input|textarea/i.test(event.target.tagName) ?
-      event.key === SPACE_KEY || (event.key !== ESCAPE_KEY &&
+    if (/input|textarea/i.test(event.target.tagName)
+      ? event.key === SPACE_KEY || (event.key !== ESCAPE_KEY &&
       ((event.key !== ARROW_DOWN_KEY && event.key !== ARROW_UP_KEY) ||
-        event.target.closest(SELECTOR_MENU))) :
-      !REGEXP_KEYDOWN.test(event.key)) {
+        event.target.closest(SELECTOR_MENU)))
+      : !REGEXP_KEYDOWN.test(event.key)) {
       return
     }
 

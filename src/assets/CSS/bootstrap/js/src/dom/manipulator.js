@@ -5,7 +5,7 @@
  * --------------------------------------------------------------------------
  */
 
-function normalizeData(val) {
+function normalizeData (val) {
   if (val === 'true') {
     return true
   }
@@ -25,20 +25,20 @@ function normalizeData(val) {
   return val
 }
 
-function normalizeDataKey(key) {
+function normalizeDataKey (key) {
   return key.replace(/[A-Z]/g, chr => `-${chr.toLowerCase()}`)
 }
 
 const Manipulator = {
-  setDataAttribute(element, key, value) {
+  setDataAttribute (element, key, value) {
     element.setAttribute(`data-bs-${normalizeDataKey(key)}`, value)
   },
 
-  removeDataAttribute(element, key) {
+  removeDataAttribute (element, key) {
     element.removeAttribute(`data-bs-${normalizeDataKey(key)}`)
   },
 
-  getDataAttributes(element) {
+  getDataAttributes (element) {
     if (!element) {
       return {}
     }
@@ -56,11 +56,11 @@ const Manipulator = {
     return attributes
   },
 
-  getDataAttribute(element, key) {
+  getDataAttribute (element, key) {
     return normalizeData(element.getAttribute(`data-bs-${normalizeDataKey(key)}`))
   },
 
-  offset(element) {
+  offset (element) {
     const rect = element.getBoundingClientRect()
 
     return {
@@ -69,7 +69,7 @@ const Manipulator = {
     }
   },
 
-  position(element) {
+  position (element) {
     return {
       top: element.offsetTop,
       left: element.offsetLeft

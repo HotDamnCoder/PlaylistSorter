@@ -23,7 +23,7 @@ import EventHandler from './dom/event-handler'
 const VERSION = '5.0.1'
 
 class BaseComponent {
-  constructor(element) {
+  constructor (element) {
     element = getElement(element)
 
     if (!element) {
@@ -34,7 +34,7 @@ class BaseComponent {
     Data.set(this._element, this.constructor.DATA_KEY, this)
   }
 
-  dispose() {
+  dispose () {
     Data.remove(this._element, this.constructor.DATA_KEY)
     EventHandler.off(this._element, this.constructor.EVENT_KEY)
 
@@ -43,7 +43,7 @@ class BaseComponent {
     })
   }
 
-  _queueCallback(callback, element, isAnimated = true) {
+  _queueCallback (callback, element, isAnimated = true) {
     if (!isAnimated) {
       execute(callback)
       return
@@ -57,23 +57,23 @@ class BaseComponent {
 
   /** Static */
 
-  static getInstance(element) {
+  static getInstance (element) {
     return Data.get(element, this.DATA_KEY)
   }
 
-  static get VERSION() {
+  static get VERSION () {
     return VERSION
   }
 
-  static get NAME() {
+  static get NAME () {
     throw new Error('You have to implement the static method "NAME", for each component!')
   }
 
-  static get DATA_KEY() {
+  static get DATA_KEY () {
     return `bs.${this.NAME}`
   }
 
-  static get EVENT_KEY() {
+  static get EVENT_KEY () {
     return `.${this.DATA_KEY}`
   }
 }

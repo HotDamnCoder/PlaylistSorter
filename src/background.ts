@@ -4,6 +4,8 @@ import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { SPOTIFY_REDIRECT_URI, SPOTIFY_ERROR_RE, SPOTIFY_AUTH_TOKEN_RE } from '@/assets/TS/credentials'
+import Store from 'electron-store'
+Store.initRenderer()
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 

@@ -2,6 +2,10 @@
 import { IPlaylistAPI } from './IPlaylistAPI'
 import { VueGapi } from 'vue-gapi'
 import { VideoInfo } from './VideoInfo'
+import Store from 'electron-store'
+import { PlaylistInfo } from './PlaylistInfo'
+import { Tags } from './Tags'
+const store = new Store()
 
 export class YoutubeAPI implements IPlaylistAPI {
     private VUE_GAPI: VueGapi
@@ -27,20 +31,22 @@ export class YoutubeAPI implements IPlaylistAPI {
       })
     }
 
-    public getPlaylistInfo (playlistID: string): Promise<VideoInfo> {
+    public getPlaylistInfo (playlistID: string): Promise<PlaylistInfo> {
       return this.getGoogleAPI().then((googleAPI) => {
         return this.listYoutubePlaylists(googleAPI, playlistID).then((response: any) => {
-          const data = response.result.items[0]
-          const thumbnails: {[index: string]: string} = {}
-          for (const thumbnail in data.snippet.thumbnails) {
-            thumbnails[thumbnail] = data.snippet.thumbnails[thumbnail].url
+          const playlistData = response.result.items[0]
+          const playlistThumbnails: {[index: string]: string} = {}
+          for (const thumbnail in playlistData.snippet.thumbnails) {
+            playlistThumbnails[thumbnail] = playlistData.snippet.thumbnails[thumbnail].url
           }
-          return { id: data.id, name: data.snippet.title, thumbnails: thumbnails }
+          const playlistId = playlistData.id
+          const playlistName = playlistData.snippet.title
+          return { id: playlistId, name: playlistName, thumbnails: playlistThumbnails }
         })
       })
     }
 
-    private listYoutubePlaylistItems = (googleAPI: any, playlistID: string, playlistItems = [], nextPageToken = '') => {
+    private listYoutubePlaylistVideos = (googleAPI: any, playlistID: string, playlistVideos = [], nextPageToken = '') => {
       return googleAPI.client.youtube.playlistItems.list({
         part: ['snippet'],
         playlistId: [playlistID],
@@ -48,27 +54,31 @@ export class YoutubeAPI implements IPlaylistAPI {
         maxResults: 50
       }).then((response: any) => {
         nextPageToken = response.result.nextPageToken
-        playlistItems = playlistItems.concat(response.result.items)
+        const items = response.result.items
+        playlistVideos = playlistVideos.concat(items)
         if (nextPageToken !== undefined && nextPageToken !== '') {
-          return this.listYoutubePlaylistItems(googleAPI, playlistID, playlistItems, nextPageToken)
+          return this.listYoutubePlaylistVideos(googleAPI, playlistID, playlistVideos, nextPageToken)
         } else {
-          return playlistItems
+          return playlistVideos
         }
       })
     }
 
     public getPlaylistItems (playlistID: string): Promise<Array<VideoInfo>> {
       return this.getGoogleAPI().then((googleAPI) => {
-        return this.listYoutubePlaylistItems(googleAPI, playlistID).then((items: any) => {
-          const videos = []
-          for (const itemNr in items) {
-            const thumbnails: {[index: string]: string} = {}
-            for (const thumbnail in items[itemNr].snippet.thumbnails) {
-              thumbnails[thumbnail] = items[itemNr].snippet.thumbnails[thumbnail].url
+        return this.listYoutubePlaylistVideos(googleAPI, playlistID).then((videos: any) => {
+          const items = []
+          for (const videoIndex in videos) {
+            const videoThumbnails: {[index: string]: string} = {}
+            for (const thumbnail in videos[videoIndex].snippet.thumbnails) {
+              videoThumbnails[thumbnail] = videos[videoIndex].snippet.thumbnails[thumbnail].url
             }
-            videos.push({ id: items[itemNr].snippet.resourceId.videoId, name: items[itemNr].snippet.title, thumbnails: thumbnails })
+            const videoName = videos[videoIndex].snippet.title
+            const videoId = videos[videoIndex].snippet.resourceId.videoId
+            const videoTags = store.get(videoId, []) as Tags
+            items.push({ id: videoId, name: videoName, thumbnails: videoThumbnails, tags: videoTags })
           }
-          return videos
+          return items
         })
       })
     }

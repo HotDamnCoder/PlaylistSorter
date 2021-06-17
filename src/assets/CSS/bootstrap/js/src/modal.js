@@ -76,7 +76,7 @@ const SELECTOR_DATA_DISMISS = '[data-bs-dismiss="modal"]'
  */
 
 class Modal extends BaseComponent {
-  constructor(element, config) {
+  constructor (element, config) {
     super(element)
 
     this._config = this._getConfig(config)
@@ -89,21 +89,21 @@ class Modal extends BaseComponent {
 
   // Getters
 
-  static get Default() {
+  static get Default () {
     return Default
   }
 
-  static get NAME() {
+  static get NAME () {
     return NAME
   }
 
   // Public
 
-  toggle(relatedTarget) {
+  toggle (relatedTarget) {
     return this._isShown ? this.hide() : this.show(relatedTarget)
   }
 
-  show(relatedTarget) {
+  show (relatedTarget) {
     if (this._isShown || this._isTransitioning) {
       return
     }
@@ -144,7 +144,7 @@ class Modal extends BaseComponent {
     this._showBackdrop(() => this._showElement(relatedTarget))
   }
 
-  hide(event) {
+  hide (event) {
     if (event) {
       event.preventDefault()
     }
@@ -179,7 +179,7 @@ class Modal extends BaseComponent {
     this._queueCallback(() => this._hideModal(), this._element, isAnimated)
   }
 
-  dispose() {
+  dispose () {
     [window, this._dialog]
       .forEach(htmlElement => EventHandler.off(htmlElement, EVENT_KEY))
 
@@ -194,20 +194,20 @@ class Modal extends BaseComponent {
     EventHandler.off(document, EVENT_FOCUSIN)
   }
 
-  handleUpdate() {
+  handleUpdate () {
     this._adjustDialog()
   }
 
   // Private
 
-  _initializeBackDrop() {
+  _initializeBackDrop () {
     return new Backdrop({
       isVisible: Boolean(this._config.backdrop), // 'static' option will be translated to true, and booleans will keep their value
       isAnimated: this._isAnimated()
     })
   }
 
-  _getConfig(config) {
+  _getConfig (config) {
     config = {
       ...Default,
       ...Manipulator.getDataAttributes(this._element),
@@ -217,7 +217,7 @@ class Modal extends BaseComponent {
     return config
   }
 
-  _showElement(relatedTarget) {
+  _showElement (relatedTarget) {
     const isAnimated = this._isAnimated()
     const modalBody = SelectorEngine.findOne(SELECTOR_MODAL_BODY, this._dialog)
 
@@ -260,7 +260,7 @@ class Modal extends BaseComponent {
     this._queueCallback(transitionComplete, this._dialog, isAnimated)
   }
 
-  _enforceFocus() {
+  _enforceFocus () {
     EventHandler.off(document, EVENT_FOCUSIN) // guard against infinite focus loop
     EventHandler.on(document, EVENT_FOCUSIN, event => {
       if (document !== event.target &&
@@ -271,7 +271,7 @@ class Modal extends BaseComponent {
     })
   }
 
-  _setEscapeEvent() {
+  _setEscapeEvent () {
     if (this._isShown) {
       EventHandler.on(this._element, EVENT_KEYDOWN_DISMISS, event => {
         if (this._config.keyboard && event.key === ESCAPE_KEY) {
@@ -286,7 +286,7 @@ class Modal extends BaseComponent {
     }
   }
 
-  _setResizeEvent() {
+  _setResizeEvent () {
     if (this._isShown) {
       EventHandler.on(window, EVENT_RESIZE, () => this._adjustDialog())
     } else {
@@ -294,7 +294,7 @@ class Modal extends BaseComponent {
     }
   }
 
-  _hideModal() {
+  _hideModal () {
     this._element.style.display = 'none'
     this._element.setAttribute('aria-hidden', true)
     this._element.removeAttribute('aria-modal')
@@ -308,7 +308,7 @@ class Modal extends BaseComponent {
     })
   }
 
-  _showBackdrop(callback) {
+  _showBackdrop (callback) {
     EventHandler.on(this._element, EVENT_CLICK_DISMISS, event => {
       if (this._ignoreBackdropClick) {
         this._ignoreBackdropClick = false
@@ -329,11 +329,11 @@ class Modal extends BaseComponent {
     this._backdrop.show(callback)
   }
 
-  _isAnimated() {
+  _isAnimated () {
     return this._element.classList.contains(CLASS_NAME_FADE)
   }
 
-  _triggerBackdropTransition() {
+  _triggerBackdropTransition () {
     const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE_PREVENTED)
     if (hideEvent.defaultPrevented) {
       return
@@ -365,7 +365,7 @@ class Modal extends BaseComponent {
   // the following methods are used to handle overflowing modals
   // ----------------------------------------------------------------------
 
-  _adjustDialog() {
+  _adjustDialog () {
     const isModalOverflowing = this._element.scrollHeight > document.documentElement.clientHeight
     const scrollbarWidth = getScrollBarWidth()
     const isBodyOverflowing = scrollbarWidth > 0
@@ -379,14 +379,14 @@ class Modal extends BaseComponent {
     }
   }
 
-  _resetAdjustments() {
+  _resetAdjustments () {
     this._element.style.paddingLeft = ''
     this._element.style.paddingRight = ''
   }
 
   // Static
 
-  static jQueryInterface(config, relatedTarget) {
+  static jQueryInterface (config, relatedTarget) {
     return this.each(function () {
       const data = Modal.getInstance(this) || new Modal(this, typeof config === 'object' ? config : {})
 

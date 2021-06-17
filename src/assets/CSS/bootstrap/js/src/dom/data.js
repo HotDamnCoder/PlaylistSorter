@@ -14,7 +14,7 @@
 const elementMap = new Map()
 
 export default {
-  set(element, key, instance) {
+  set (element, key, instance) {
     if (!elementMap.has(element)) {
       elementMap.set(element, new Map())
     }
@@ -32,7 +32,7 @@ export default {
     instanceMap.set(key, instance)
   },
 
-  get(element, key) {
+  get (element, key) {
     if (elementMap.has(element)) {
       return elementMap.get(element).get(key) || null
     }
@@ -40,7 +40,7 @@ export default {
     return null
   },
 
-  remove(element, key) {
+  remove (element, key) {
     if (!elementMap.has(element)) {
       return
     }

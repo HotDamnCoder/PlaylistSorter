@@ -67,7 +67,7 @@ const SELECTOR_DATA_TOGGLE = '[data-bs-toggle="offcanvas"]'
  */
 
 class Offcanvas extends BaseComponent {
-  constructor(element, config) {
+  constructor (element, config) {
     super(element)
 
     this._config = this._getConfig(config)
@@ -78,21 +78,21 @@ class Offcanvas extends BaseComponent {
 
   // Getters
 
-  static get NAME() {
+  static get NAME () {
     return NAME
   }
 
-  static get Default() {
+  static get Default () {
     return Default
   }
 
   // Public
 
-  toggle(relatedTarget) {
+  toggle (relatedTarget) {
     return this._isShown ? this.hide() : this.show(relatedTarget)
   }
 
-  show(relatedTarget) {
+  show (relatedTarget) {
     if (this._isShown) {
       return
     }
@@ -125,7 +125,7 @@ class Offcanvas extends BaseComponent {
     this._queueCallback(completeCallBack, this._element, true)
   }
 
-  hide() {
+  hide () {
     if (!this._isShown) {
       return
     }
@@ -158,7 +158,7 @@ class Offcanvas extends BaseComponent {
     this._queueCallback(completeCallback, this._element, true)
   }
 
-  dispose() {
+  dispose () {
     this._backdrop.dispose()
     super.dispose()
     EventHandler.off(document, EVENT_FOCUSIN)
@@ -166,7 +166,7 @@ class Offcanvas extends BaseComponent {
 
   // Private
 
-  _getConfig(config) {
+  _getConfig (config) {
     config = {
       ...Default,
       ...Manipulator.getDataAttributes(this._element),
@@ -176,7 +176,7 @@ class Offcanvas extends BaseComponent {
     return config
   }
 
-  _initializeBackDrop() {
+  _initializeBackDrop () {
     return new Backdrop({
       isVisible: this._config.backdrop,
       isAnimated: true,
@@ -185,7 +185,7 @@ class Offcanvas extends BaseComponent {
     })
   }
 
-  _enforceFocusOnElement(element) {
+  _enforceFocusOnElement (element) {
     EventHandler.off(document, EVENT_FOCUSIN) // guard against infinite focus loop
     EventHandler.on(document, EVENT_FOCUSIN, event => {
       if (document !== event.target &&
@@ -197,7 +197,7 @@ class Offcanvas extends BaseComponent {
     element.focus()
   }
 
-  _addEventListeners() {
+  _addEventListeners () {
     EventHandler.on(this._element, EVENT_CLICK_DISMISS, SELECTOR_DATA_DISMISS, () => this.hide())
 
     EventHandler.on(this._element, EVENT_KEYDOWN_DISMISS, event => {
@@ -209,7 +209,7 @@ class Offcanvas extends BaseComponent {
 
   // Static
 
-  static jQueryInterface(config) {
+  static jQueryInterface (config) {
     return this.each(function () {
       const data = Data.get(this, DATA_KEY) || new Offcanvas(this, typeof config === 'object' ? config : {})
 

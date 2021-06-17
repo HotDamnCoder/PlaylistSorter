@@ -65,7 +65,7 @@ const METHOD_POSITION = 'position'
  */
 
 class ScrollSpy extends BaseComponent {
-  constructor(element, config) {
+  constructor (element, config) {
     super(element)
     this._scrollElement = this._element.tagName === 'BODY' ? window : this._element
     this._config = this._getConfig(config)
@@ -83,28 +83,28 @@ class ScrollSpy extends BaseComponent {
 
   // Getters
 
-  static get Default() {
+  static get Default () {
     return Default
   }
 
-  static get NAME() {
+  static get NAME () {
     return NAME
   }
 
   // Public
 
-  refresh() {
-    const autoMethod = this._scrollElement === this._scrollElement.window ?
-      METHOD_OFFSET :
-      METHOD_POSITION
+  refresh () {
+    const autoMethod = this._scrollElement === this._scrollElement.window
+      ? METHOD_OFFSET
+      : METHOD_POSITION
 
-    const offsetMethod = this._config.method === 'auto' ?
-      autoMethod :
-      this._config.method
+    const offsetMethod = this._config.method === 'auto'
+      ? autoMethod
+      : this._config.method
 
-    const offsetBase = offsetMethod === METHOD_POSITION ?
-      this._getScrollTop() :
-      0
+    const offsetBase = offsetMethod === METHOD_POSITION
+      ? this._getScrollTop()
+      : 0
 
     this._offsets = []
     this._targets = []
@@ -136,14 +136,14 @@ class ScrollSpy extends BaseComponent {
       })
   }
 
-  dispose() {
+  dispose () {
     EventHandler.off(this._scrollElement, EVENT_KEY)
     super.dispose()
   }
 
   // Private
 
-  _getConfig(config) {
+  _getConfig (config) {
     config = {
       ...Default,
       ...Manipulator.getDataAttributes(this._element),
@@ -165,26 +165,26 @@ class ScrollSpy extends BaseComponent {
     return config
   }
 
-  _getScrollTop() {
-    return this._scrollElement === window ?
-      this._scrollElement.pageYOffset :
-      this._scrollElement.scrollTop
+  _getScrollTop () {
+    return this._scrollElement === window
+      ? this._scrollElement.pageYOffset
+      : this._scrollElement.scrollTop
   }
 
-  _getScrollHeight() {
+  _getScrollHeight () {
     return this._scrollElement.scrollHeight || Math.max(
       document.body.scrollHeight,
       document.documentElement.scrollHeight
     )
   }
 
-  _getOffsetHeight() {
-    return this._scrollElement === window ?
-      window.innerHeight :
-      this._scrollElement.getBoundingClientRect().height
+  _getOffsetHeight () {
+    return this._scrollElement === window
+      ? window.innerHeight
+      : this._scrollElement.getBoundingClientRect().height
   }
 
-  _process() {
+  _process () {
     const scrollTop = this._getScrollTop() + this._config.offset
     const scrollHeight = this._getScrollHeight()
     const maxScroll = this._config.offset + scrollHeight - this._getOffsetHeight()
@@ -220,7 +220,7 @@ class ScrollSpy extends BaseComponent {
     }
   }
 
-  _activate(target) {
+  _activate (target) {
     this._activeTarget = target
 
     this._clear()
@@ -260,7 +260,7 @@ class ScrollSpy extends BaseComponent {
     })
   }
 
-  _clear() {
+  _clear () {
     SelectorEngine.find(this._selector)
       .filter(node => node.classList.contains(CLASS_NAME_ACTIVE))
       .forEach(node => node.classList.remove(CLASS_NAME_ACTIVE))
@@ -268,7 +268,7 @@ class ScrollSpy extends BaseComponent {
 
   // Static
 
-  static jQueryInterface(config) {
+  static jQueryInterface (config) {
     return this.each(function () {
       const data = ScrollSpy.getInstance(this) || new ScrollSpy(this, typeof config === 'object' ? config : {})
 

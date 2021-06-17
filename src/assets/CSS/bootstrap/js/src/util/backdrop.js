@@ -29,13 +29,13 @@ const CLASS_NAME_SHOW = 'show'
 const EVENT_MOUSEDOWN = `mousedown.bs.${NAME}`
 
 class Backdrop {
-  constructor(config) {
+  constructor (config) {
     this._config = this._getConfig(config)
     this._isAppended = false
     this._element = null
   }
 
-  show(callback) {
+  show (callback) {
     if (!this._config.isVisible) {
       execute(callback)
       return
@@ -54,7 +54,7 @@ class Backdrop {
     })
   }
 
-  hide(callback) {
+  hide (callback) {
     if (!this._config.isVisible) {
       execute(callback)
       return
@@ -70,7 +70,7 @@ class Backdrop {
 
   // Private
 
-  _getElement() {
+  _getElement () {
     if (!this._element) {
       const backdrop = document.createElement('div')
       backdrop.className = CLASS_NAME_BACKDROP
@@ -84,7 +84,7 @@ class Backdrop {
     return this._element
   }
 
-  _getConfig(config) {
+  _getConfig (config) {
     config = {
       ...Default,
       ...(typeof config === 'object' ? config : {})
@@ -95,7 +95,7 @@ class Backdrop {
     return config
   }
 
-  _append() {
+  _append () {
     if (this._isAppended) {
       return
     }
@@ -109,7 +109,7 @@ class Backdrop {
     this._isAppended = true
   }
 
-  dispose() {
+  dispose () {
     if (!this._isAppended) {
       return
     }
@@ -120,7 +120,7 @@ class Backdrop {
     this._isAppended = false
   }
 
-  _emulateAnimation(callback) {
+  _emulateAnimation (callback) {
     if (!this._config.isAnimated) {
       execute(callback)
       return

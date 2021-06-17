@@ -55,13 +55,13 @@ const SELECTOR_DROPDOWN_ACTIVE_CHILD = ':scope > .dropdown-menu .active'
 class Tab extends BaseComponent {
   // Getters
 
-  static get NAME() {
+  static get NAME () {
     return NAME
   }
 
   // Public
 
-  show() {
+  show () {
     if ((this._element.parentNode &&
       this._element.parentNode.nodeType === Node.ELEMENT_NODE &&
       this._element.classList.contains(CLASS_NAME_ACTIVE))) {
@@ -78,11 +78,11 @@ class Tab extends BaseComponent {
       previous = previous[previous.length - 1]
     }
 
-    const hideEvent = previous ?
-      EventHandler.trigger(previous, EVENT_HIDE, {
+    const hideEvent = previous
+      ? EventHandler.trigger(previous, EVENT_HIDE, {
         relatedTarget: this._element
-      }) :
-      null
+      })
+      : null
 
     const showEvent = EventHandler.trigger(this._element, EVENT_SHOW, {
       relatedTarget: previous
@@ -112,10 +112,10 @@ class Tab extends BaseComponent {
 
   // Private
 
-  _activate(element, container, callback) {
-    const activeElements = container && (container.nodeName === 'UL' || container.nodeName === 'OL') ?
-      SelectorEngine.find(SELECTOR_ACTIVE_UL, container) :
-      SelectorEngine.children(container, SELECTOR_ACTIVE)
+  _activate (element, container, callback) {
+    const activeElements = container && (container.nodeName === 'UL' || container.nodeName === 'OL')
+      ? SelectorEngine.find(SELECTOR_ACTIVE_UL, container)
+      : SelectorEngine.children(container, SELECTOR_ACTIVE)
 
     const active = activeElements[0]
     const isTransitioning = callback && (active && active.classList.contains(CLASS_NAME_FADE))
@@ -130,7 +130,7 @@ class Tab extends BaseComponent {
     }
   }
 
-  _transitionComplete(element, active, callback) {
+  _transitionComplete (element, active, callback) {
     if (active) {
       active.classList.remove(CLASS_NAME_ACTIVE)
 
@@ -179,7 +179,7 @@ class Tab extends BaseComponent {
 
   // Static
 
-  static jQueryInterface(config) {
+  static jQueryInterface (config) {
     return this.each(function () {
       const data = Data.get(this, DATA_KEY) || new Tab(this)
 

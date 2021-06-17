@@ -6,7 +6,7 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
-import navbar from '@/components/navbar.vue'
+import navbar from '@/components/Navbar.vue'
 export default defineComponent({
   components: {
     navbar

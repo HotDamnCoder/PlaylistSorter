@@ -43,13 +43,13 @@ const CLASS_NAME_SHOW = 'show'
 class Alert extends BaseComponent {
   // Getters
 
-  static get NAME() {
+  static get NAME () {
     return NAME
   }
 
   // Public
 
-  close(element) {
+  close (element) {
     const rootElement = element ? this._getRootElement(element) : this._element
     const customEvent = this._triggerCloseEvent(rootElement)
 
@@ -62,22 +62,22 @@ class Alert extends BaseComponent {
 
   // Private
 
-  _getRootElement(element) {
+  _getRootElement (element) {
     return getElementFromSelector(element) || element.closest(`.${CLASS_NAME_ALERT}`)
   }
 
-  _triggerCloseEvent(element) {
+  _triggerCloseEvent (element) {
     return EventHandler.trigger(element, EVENT_CLOSE)
   }
 
-  _removeElement(element) {
+  _removeElement (element) {
     element.classList.remove(CLASS_NAME_SHOW)
 
     const isAnimated = element.classList.contains(CLASS_NAME_FADE)
     this._queueCallback(() => this._destroyElement(element), element, isAnimated)
   }
 
-  _destroyElement(element) {
+  _destroyElement (element) {
     if (element.parentNode) {
       element.parentNode.removeChild(element)
     }
@@ -87,7 +87,7 @@ class Alert extends BaseComponent {
 
   // Static
 
-  static jQueryInterface(config) {
+  static jQueryInterface (config) {
     return this.each(function () {
       let data = Data.get(this, DATA_KEY)
 
@@ -101,7 +101,7 @@ class Alert extends BaseComponent {
     })
   }
 
-  static handleDismiss(alertInstance) {
+  static handleDismiss (alertInstance) {
     return function (event) {
       if (event) {
         event.preventDefault()

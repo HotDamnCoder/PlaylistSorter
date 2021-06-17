@@ -1,5 +1,5 @@
 {
-  "name": "***REMOVED***",
+  "name": "playlist_sorter",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -14,11 +14,13 @@
   "main": "background.js",
   "dependencies": {
     "core-js": "^3.6.5",
+    "electron-store": "^8.0.0",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {
+    "@sipec/vue3-tags-input": "^3.0.4",
     "@types/electron-devtools-installer": "^2.2.0",
     "@types/spotify-web-api-node": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "^4.18.0",

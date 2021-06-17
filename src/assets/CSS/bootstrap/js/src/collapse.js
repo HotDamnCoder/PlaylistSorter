@@ -64,7 +64,7 @@ const SELECTOR_DATA_TOGGLE = '[data-bs-toggle="collapse"]'
  */
 
 class Collapse extends BaseComponent {
-  constructor(element, config) {
+  constructor (element, config) {
     super(element)
 
     this._isTransitioning = false
@@ -101,17 +101,17 @@ class Collapse extends BaseComponent {
 
   // Getters
 
-  static get Default() {
+  static get Default () {
     return Default
   }
 
-  static get NAME() {
+  static get NAME () {
     return NAME
   }
 
   // Public
 
-  toggle() {
+  toggle () {
     if (this._element.classList.contains(CLASS_NAME_SHOW)) {
       this.hide()
     } else {
@@ -119,7 +119,7 @@ class Collapse extends BaseComponent {
     }
   }
 
-  show() {
+  show () {
     if (this._isTransitioning || this._element.classList.contains(CLASS_NAME_SHOW)) {
       return
     }
@@ -203,7 +203,7 @@ class Collapse extends BaseComponent {
     this._element.style[dimension] = `${this._element[scrollSize]}px`
   }
 
-  hide() {
+  hide () {
     if (this._isTransitioning || !this._element.classList.contains(CLASS_NAME_SHOW)) {
       return
     }
@@ -249,13 +249,13 @@ class Collapse extends BaseComponent {
     this._queueCallback(complete, this._element, true)
   }
 
-  setTransitioning(isTransitioning) {
+  setTransitioning (isTransitioning) {
     this._isTransitioning = isTransitioning
   }
 
   // Private
 
-  _getConfig(config) {
+  _getConfig (config) {
     config = {
       ...Default,
       ...config
@@ -265,11 +265,11 @@ class Collapse extends BaseComponent {
     return config
   }
 
-  _getDimension() {
+  _getDimension () {
     return this._element.classList.contains(WIDTH) ? WIDTH : HEIGHT
   }
 
-  _getParent() {
+  _getParent () {
     let { parent } = this._config
 
     parent = getElement(parent)
@@ -289,7 +289,7 @@ class Collapse extends BaseComponent {
     return parent
   }
 
-  _addAriaAndCollapsedClass(element, triggerArray) {
+  _addAriaAndCollapsedClass (element, triggerArray) {
     if (!element || !triggerArray.length) {
       return
     }
@@ -309,7 +309,7 @@ class Collapse extends BaseComponent {
 
   // Static
 
-  static collapseInterface(element, config) {
+  static collapseInterface (element, config) {
     let data = Data.get(element, DATA_KEY)
     const _config = {
       ...Default,
@@ -334,7 +334,7 @@ class Collapse extends BaseComponent {
     }
   }
 
-  static jQueryInterface(config) {
+  static jQueryInterface (config) {
     return this.each(function () {
       Collapse.collapseInterface(this, config)
     })
