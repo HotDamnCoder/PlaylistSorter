@@ -1,10 +1,11 @@
-import { PlaylistInfo } from './PlaylistInfo'
-import { VideoInfo } from './VideoInfo'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Playlist } from './Playlist'
+import { Video } from './Video'
 export interface IPlaylistAPI {
     loginToAPI() : Promise<boolean>;
-    getPlaylistInfo(playlistId: string) : Promise<PlaylistInfo>
-    getPlaylistItems(playlistID: string) : Promise<Array<VideoInfo>>
-    playlistExists(playlistName: string) : Promise<boolean>
-    createPlaylist(playlistName: string) : Promise<boolean>
-    addItemsToPlaylist(playlistName: string, items: Array<string>) : Promise<boolean>
+    getPlaylist(playlistId: string) : Promise<Playlist>
+    getPlaylistVideos(playlistID: string) : Promise<Array<Video>>
+    checkIfPlaylistExists(playlistName: string) : Promise<boolean>
+    createPlaylist(playlistName: string) : Promise<any>
+    addItemsToPlaylist(playlistName: string, items: Array<string>) : Promise<any>
 }

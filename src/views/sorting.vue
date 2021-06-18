@@ -51,7 +51,7 @@ import PlaylistTitle from '@/components/PlaylistTitle.vue'
 import CenteredContainer from '@/components/CenteredContainer.vue'
 import { mapGetters, mapMutations } from 'vuex'
 import { IPlaylistAPI } from '@/assets/TS/IPlaylistAPI'
-import { VideoInfo } from '@/assets/TS/VideoInfo'
+import { Video } from '@/assets/TS/Video'
 import Store from 'electron-store'
 const store = new Store()
 
@@ -63,8 +63,8 @@ export default defineComponent({
     CenteredContainer
   },
   computed: {
-    playlistItems: function (): Array<VideoInfo> {
-      return this.$store.getters.getPlaylistItems() as Array<VideoInfo>
+    playlistItems: function (): Array<Video> {
+      return this.$store.getters.getPlaylistItems() as Array<Video>
     },
     playlistAPI: function (): IPlaylistAPI {
       return this.$store.getters.getPlaylistAPI() as IPlaylistAPI
@@ -72,7 +72,7 @@ export default defineComponent({
     ...mapGetters(['getPlaylistID'])
   },
   methods: {
-    updateItemTags (item: VideoInfo, newTags: Array<{text: string, tiClasses: Array<string>}>) {
+    updateItemTags (item: Video, newTags: Array<{text: string, tiClasses: Array<string>}>) {
       item.tags = newTags
       store.set(item.id, item.tags)
     },
@@ -92,7 +92,7 @@ export default defineComponent({
       console.log(sortedPlaylists)
       for (const playlistName in sortedPlaylists) {
         const playlistItems = sortedPlaylists[playlistName]
-        if (!this.playlistAPI.playlistExists(playlistName)) {
+        if (!this.playlistAPI.checkIfPlaylistExists(playlistName)) {
           this.playlistAPI.createPlaylist(playlistName)
         }
         this.playlistAPI.addItemsToPlaylist(playlistName, playlistItems)
@@ -101,7 +101,8 @@ export default defineComponent({
     ...mapMutations(['setPlaylistItems'])
   },
   mounted () {
-    this.playlistAPI.getPlaylistItems(this.getPlaylistID().id).then((items) => {
+    this.playlistAPI.getPlaylistVideos(this.getPlaylistID().id).then((items) => {
+      console.log(items)
       this.setPlaylistItems(items)
     })
   }

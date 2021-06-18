@@ -1,7 +1,7 @@
 import { createStore } from 'vuex'
 import { PlaylistId } from '@/assets/TS/PlaylistID'
 import { IPlaylistAPI } from '@/assets/TS/IPlaylistAPI'
-import { VideoInfo } from '@/assets/TS/VideoInfo'
+import { Video } from '@/assets/TS/Video'
 const store = createStore({
   state: {
     playlistID: {},
@@ -44,7 +44,7 @@ const store = createStore({
       return state.playlistThumbnailURL as string
     },
     getPlaylistItems: (state) => () => {
-      return state.playlistItems as Array<VideoInfo>
+      return state.playlistItems as Array<Video>
     }
   }
 })

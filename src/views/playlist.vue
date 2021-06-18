@@ -50,6 +50,7 @@ import { YoutubeAPI } from '@/assets/TS/YoutubeAPI'
 import { mapMutations, mapGetters } from 'vuex'
 
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI, SPOTIFY_SCOPE } from '@/assets/TS/credentials'
+import { Playlist } from '@/assets/TS/Playlist'
 
 export default defineComponent({
   computed: {
@@ -82,9 +83,9 @@ export default defineComponent({
     this.setPlaylistAPI(playlistAPI)
     playlistAPI.loginToAPI().then((logedIn) => {
       if (logedIn) {
-        playlistAPI.getPlaylistInfo(this.getPlaylistID().id).then((info) => {
-          this.setPlaylistName(info.name)
-          this.setPlaylistThumbnailURL(info.thumbnails.high)
+        playlistAPI.getPlaylist(this.getPlaylistID().id).then((playlist: Playlist) => {
+          this.setPlaylistName(playlist.name)
+          this.setPlaylistThumbnailURL(playlist.thumbnails.high)
         })
       }
     })
