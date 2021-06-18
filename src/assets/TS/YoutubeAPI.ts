@@ -4,7 +4,7 @@ import { VueGapi } from 'vue-gapi'
 import { VideoInfo } from './VideoInfo'
 import Store from 'electron-store'
 import { PlaylistInfo } from './PlaylistInfo'
-import { Tags } from './Tags'
+import { VideoTags } from './Tags'
 const store = new Store()
 
 export class YoutubeAPI implements IPlaylistAPI {
@@ -75,7 +75,7 @@ export class YoutubeAPI implements IPlaylistAPI {
             }
             const videoName = videos[videoIndex].snippet.title
             const videoId = videos[videoIndex].snippet.resourceId.videoId
-            const videoTags = store.get(videoId, []) as Tags
+            const videoTags = store.get(videoId, []) as VideoTags
             items.push({ id: videoId, name: videoName, thumbnails: videoThumbnails, tags: videoTags })
           }
           return items

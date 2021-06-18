@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { ipcRenderer } from 'electron'
@@ -82,27 +83,56 @@ export class SpotifyAPI implements IPlaylistAPI {
     })
   }
 
+  private getPlaylistId (name: string) : Promise<string> {
+    return this.api.getUserPlaylists().then((data) => {
+      const userPlaylists = data.body.items
+      for (const playlistIndex in userPlaylists) {
+        const playlist = userPlaylists[playlistIndex]
+        if (playlist.name === name) {
+          return playlist.id
+        }
+      }
+      return ''
+    })
+  }
+
   private getVideosURIS (videoIds: Array<string>) : Array<string> {
     const videoIdsURIS = []
     for (const videoIdIndex in videoIds) {
       const videoId = videoIds[videoIdIndex]
       videoIdsURIS.push(`spotify:track:${videoId}`)
     }
-    return videoIds
+    return videoIdsURIS
   }
 
-  public createPlaylist (name: string, videoIds: Array<string>): Promise<boolean> {
-    return this.api.createPlaylist(name).then((response) => {
-      const created = response.statusCode === 200
-      if (created) {
-        const playlistId = response.body.id
-        const videosURIS = this.getVideosURIS(videoIds)
-        return this.api.addTracksToPlaylist(playlistId, videosURIS).then((response) => {
-          return response.statusCode === 200
-        })
-      } else {
-        return created
+  public playlistExists (name: string) : Promise<boolean> {
+    return this.api.getUserPlaylists().then((data) => {
+      const userPlaylists = data.body.items
+      for (const playlistIndex in userPlaylists) {
+        const playlist = userPlaylists[playlistIndex]
+        if (playlist.name === name) {
+          return true
+        }
       }
+      return false
+    })
+  }
+
+  public createPlaylist (name: string): Promise<boolean> {
+    return this.api.createPlaylist(name).then((_data) => {
+      return true
+    }, (_error) => {
+      return false
+    })
+  }
+
+  public addItemsToPlaylist (name: string, items: Array<string>): Promise<boolean> {
+    return this.getPlaylistId(name).then((id) => {
+      return this.api.addTracksToPlaylist(id, this.getVideosURIS(items)).then((_data) => {
+        return true
+      }, (_error) => {
+        return false
+      })
     })
   }
 }

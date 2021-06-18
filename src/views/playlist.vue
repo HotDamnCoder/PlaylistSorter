@@ -56,7 +56,7 @@ export default defineComponent({
     playlistThumbnailURL: function () {
       return this.$store.getters.getPlaylistThumbnailURL() as string
     },
-    ...mapGetters(['getPlaylistAPI', 'getPlaylistID'])
+    ...mapGetters(['getPlaylistID'])
   },
   components: {
     navbar,
@@ -73,23 +73,21 @@ export default defineComponent({
     }
   },
   mounted () {
-    if (this.getPlaylistAPI()) {
-      var playlistAPI: IPlaylistAPI
-      if (this.getPlaylistID().type.toLowerCase() === 'youtube') {
-        playlistAPI = new YoutubeAPI(this.$gapi)
-      } else {
-        playlistAPI = new SpotifyAPI(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_SCOPE, SPOTIFY_REDIRECT_URI)
-      }
-      this.setPlaylistAPI(playlistAPI)
-      playlistAPI.loginToAPI().then((logedIn) => {
-        if (logedIn) {
-          playlistAPI.getPlaylistInfo(this.getPlaylistID().id).then((info) => {
-            this.setPlaylistName(info.name)
-            this.setPlaylistThumbnailURL(info.thumbnails.high)
-          })
-        }
-      })
+    var playlistAPI: IPlaylistAPI
+    if (this.getPlaylistID().type.toLowerCase() === 'youtube') {
+      playlistAPI = new YoutubeAPI(this.$gapi)
+    } else {
+      playlistAPI = new SpotifyAPI(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_SCOPE, SPOTIFY_REDIRECT_URI)
     }
+    this.setPlaylistAPI(playlistAPI)
+    playlistAPI.loginToAPI().then((logedIn) => {
+      if (logedIn) {
+        playlistAPI.getPlaylistInfo(this.getPlaylistID().id).then((info) => {
+          this.setPlaylistName(info.name)
+          this.setPlaylistThumbnailURL(info.thumbnails.high)
+        })
+      }
+    })
   }
 })
 </script>

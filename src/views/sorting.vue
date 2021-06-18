@@ -66,7 +66,10 @@ export default defineComponent({
     playlistItems: function (): Array<VideoInfo> {
       return this.$store.getters.getPlaylistItems() as Array<VideoInfo>
     },
-    ...mapGetters(['getPlaylistAPI', 'getPlaylistID'])
+    playlistAPI: function (): IPlaylistAPI {
+      return this.$store.getters.getPlaylistAPI() as IPlaylistAPI
+    },
+    ...mapGetters(['getPlaylistID'])
   },
   methods: {
     updateItemTags (item: VideoInfo, newTags: Array<{text: string, tiClasses: Array<string>}>) {
@@ -87,12 +90,18 @@ export default defineComponent({
         }
       }
       console.log(sortedPlaylists)
+      for (const playlistName in sortedPlaylists) {
+        const playlistItems = sortedPlaylists[playlistName]
+        if (!this.playlistAPI.playlistExists(playlistName)) {
+          this.playlistAPI.createPlaylist(playlistName)
+        }
+        this.playlistAPI.addItemsToPlaylist(playlistName, playlistItems)
+      }
     },
     ...mapMutations(['setPlaylistItems'])
   },
   mounted () {
-    const api: IPlaylistAPI = this.getPlaylistAPI()
-    api.getPlaylistItems(this.getPlaylistID().id).then((items) => {
+    this.playlistAPI.getPlaylistItems(this.getPlaylistID().id).then((items) => {
       this.setPlaylistItems(items)
     })
   }
