@@ -47,12 +47,13 @@ export class YoutubeAPI implements IPlaylistAPI {
   }
 
   private getThumbnailUrls (thumbnails: any) {
-    const thumbnailUrls: { [index:string]: string } = {}
-    for (const thumbnailKey in thumbnails) {
-      const thumbnail = thumbnails[thumbnailKey]
-      thumbnailUrls[thumbnailKey] = thumbnail.url
+    console.log(thumbnails)
+    if (thumbnails === {}) {
+      return { high: '', medium: '', low: '' }
+    } else {
+      const thumbnailUrls = { high: thumbnails.high.url, medium: thumbnails.high.url, low: thumbnails.default.url }
+      return thumbnailUrls
     }
-    return thumbnailUrls
   }
 
   private getPlaylistIdFromName (playlistName: string): Promise<string> {
@@ -97,7 +98,8 @@ export class YoutubeAPI implements IPlaylistAPI {
         const videoName = videoData.title
         const videoId = videoData.resourceId.videoId
         const videoTags = store.get(videoId, []) as VideoTags
-        videos.push(new Video(videoId, videoName, videoThumbnails, videoTags, ''))
+        const videoLink = `https://www.youtube.com/embed/${videoId}`
+        videos.push(new Video(videoId, videoName, videoThumbnails, videoTags, videoLink))
       }
       return videos
     })

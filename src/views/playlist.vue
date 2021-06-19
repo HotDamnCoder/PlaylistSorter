@@ -2,48 +2,30 @@
   <navbar></navbar>
   <centered-container>
       <playlist-title/>
-      <div class="row">
-        <img
-          class="img-fluid img-thumbnail rounded"
-          :src="playlistThumbnailURL"
-          v-if="playlistThumbnailURL"
-        />
+      <div class="row pt-3 pb-3">
+        <thumbnail :thumbnailURL="playlistThumbnailURL"/>
       </div>
-      <div class="row pt-3">
+      <div class="row">
         <div class="col-md-auto">
-          <button
-            type="button"
-            class="btn btn-primary btn-lg"
-            @click="goToSorting()"
-          >
-            Sort it
-          </button>
+          <styled-button btnText="Sort it" @onClick="goToSorting()"/>
         </div>
         <div class="col-md-auto">
-          <button
-            type="button"
-            class="btn btn-primary btn-lg"
-            @click="goToConverting()"
-          >
-            Convert it
-          </button>
+          <styled-button btnText="Convert it" @onClick="goToConverting()"/>
         </div>
       </div>
   </centered-container>
 </template>
-
-<style lang="scss" scoped>
-.container,
-.section {
-  height: 100%;
+<style lang="scss">
+img {
+  height: 300px !important;
 }
 </style>
-
 <script lang="ts">
 import { defineComponent } from 'vue'
 import navbar from '@/components/Navbar.vue' // @ is an alias to /src
 import PlaylistTitle from '@/components/PlaylistTitle.vue'
 import CenteredContainer from '@/components/CenteredContainer.vue'
+import StyledButton from '@/components/StyledButton.vue'
 import { IPlaylistAPI } from '@/assets/TS/IPlaylistAPI'
 import { SpotifyAPI } from '@/assets/TS/SpotifyAPI'
 import { YoutubeAPI } from '@/assets/TS/YoutubeAPI'
@@ -51,6 +33,7 @@ import { mapMutations, mapGetters } from 'vuex'
 
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI, SPOTIFY_SCOPE } from '@/assets/TS/credentials'
 import { Playlist } from '@/assets/TS/Playlist'
+import Thumbnail from '@/components/Thumbnail.vue'
 
 export default defineComponent({
   computed: {
@@ -62,7 +45,9 @@ export default defineComponent({
   components: {
     navbar,
     PlaylistTitle,
-    CenteredContainer
+    CenteredContainer,
+    StyledButton,
+    Thumbnail
   },
   methods: {
     ...mapMutations(['setPlaylistAPI', 'setPlaylistName', 'setPlaylistThumbnailURL']),
@@ -85,7 +70,7 @@ export default defineComponent({
       if (logedIn) {
         playlistAPI.getPlaylist(this.getPlaylistID().id).then((playlist: Playlist) => {
           this.setPlaylistName(playlist.name)
-          this.setPlaylistThumbnailURL(playlist.thumbnails.high)
+          this.setPlaylistThumbnailURL(playlist.thumbnails.medium)
         })
       }
     })

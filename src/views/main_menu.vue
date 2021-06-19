@@ -1,18 +1,18 @@
 <template>
   <centered-container>
       <div class="row">
-        <h1>Playlist fucker</h1>
+        <h1 class="display-1">Playlist fucker</h1>
       </div>
       <div class="row pt-3">
         <form @submit="validateForm" novalidate="true">
-          <label class="form-label">Type in playlist url</label>
           <div class="input-group">
             <input
               v-bind:class="{ 'is-invalid': error }"
               v-model="url"
               class="form-control"
+              placeholder="Type in playlist url here"
             />
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <styled-button btnText="Submit" btnType="submit"/>
           </div>
           <div class="invalid-feedback" v-if="error">
             <b>{{ error }}</b>
@@ -23,10 +23,6 @@
 </template>
 
 <style lang="scss" scoped>
-.container,
-.section {
-  height: 100%;
-}
 
 .container > * {
   width: 100% !important;
@@ -42,6 +38,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import CenteredContainer from '@/components/CenteredContainer.vue'
+import StyledButton from '@/components/StyledButton.vue'
 import { PlaylistId } from '@/assets/TS/PlaylistID'
 import { mapMutations } from 'vuex'
 
@@ -66,7 +63,8 @@ export default defineComponent({
     ...mapMutations(['setPlaylistID'])
   },
   components: {
-    CenteredContainer
+    CenteredContainer,
+    StyledButton
   }
 })
 </script>

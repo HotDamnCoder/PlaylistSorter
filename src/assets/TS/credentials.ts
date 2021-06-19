@@ -1,4 +1,4 @@
-const YOUTUBE_CLIENT_ID = '1044735142013-4bbuv3kuv7lmk5bietrlrcpnca9vtq5m.apps.googleusercontent.com'
+const YOUTUBE_CLIENT_ID = '***REMOVED***'
 const YOUTUBE_SCOPE = 'https://www.googleapis.com/auth/youtube'
 const YOUTUBE_DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest']
 

@@ -1,8 +1,4 @@
 @import "@/assets/CSS/main.scss";
-$primary: #5C6BC0;
-$error: #e54d42;
-$success: #68cd86;
-$warn: #ffb648;
 
 @font-face {
   font-family: 'icomoon';
@@ -53,13 +49,13 @@ input:focus {
 }
 
 input[disabled] {
-  background-color: $body-bg;
+  background-color: $input-bg;
 }
 
 .vue-tags-input {
   max-width: 450px;
   position: relative;
-  background-color: $body-bg;
+  background-color: $input-bg;
 }
 
 div.vue-tags-input.disabled {
@@ -71,7 +67,7 @@ div.vue-tags-input.disabled {
 }
 
 .ti-input {
-  border: 1px solid #ccc;
+  border: 1px solid $input-border-color;
   display: flex;
   padding: 4px;
   flex-wrap: wrap;
@@ -85,8 +81,8 @@ div.vue-tags-input.disabled {
 }
 
 .ti-tag {
-  background-color: $primary;
-  color: $body-color;
+  background-color: $button-bg;
+  color: $button-color;
   border-radius: 2px;
   display: flex;
   padding: 3px 5px;
@@ -133,7 +129,7 @@ div.vue-tags-input.disabled {
   }
 
   &.ti-invalid, &.ti-tag.ti-deletion-mark {
-    background-color: $error;
+    background-color: $danger;
   }
 }
 
@@ -154,16 +150,16 @@ div.vue-tags-input.disabled {
 
 .ti-new-tag-input {
   line-height: initial;
-  background-color: $body-bg;
-  color: $body-color;
+  background-color: $input-bg;
+  color: $input-color;
 }
 
 .ti-autocomplete {
-  border: 1px solid #ccc;
+  border: 1px solid $input-border-color;
   border-top: none;
   position: absolute;
   width: 100%;
-  background-color: $body-bg;
+  background-color: $input-bg;
   z-index: 20;
 }
 
@@ -174,6 +170,6 @@ div.vue-tags-input.disabled {
 }
 
 .ti-selected-item {
-  background-color: $primary;
-  color: #fff;
+  background-color: $input-bg;
+  color: $input-color
 }

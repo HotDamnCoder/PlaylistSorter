@@ -80,7 +80,7 @@ export class SpotifyAPI implements IPlaylistAPI {
   public getPlaylist (playlistId: string): Promise<Playlist> {
     return this.api.getPlaylist(playlistId).then((response) => {
       const playlistData = response.body
-      const playlistThumbnails: {[index:string]:string} = { high: playlistData.images[0].url, medium: playlistData.images[1].url, low: playlistData.images[2].url }
+      const playlistThumbnails = { high: playlistData.images[0].url, medium: playlistData.images[1].url, low: playlistData.images[2].url }
       const playlistName = playlistData.name
       return new Playlist(playlistId, playlistName, playlistThumbnails)
     })
@@ -89,14 +89,16 @@ export class SpotifyAPI implements IPlaylistAPI {
   public getPlaylistVideos (playlistId: string): Promise<Array<Video>> {
     return this.api.getPlaylistTracks(playlistId).then((response: any) => {
       const videos = response.body.tracks.items
-      const items = []
+      const items: Array<Video> = []
       for (const videoIndex in videos) {
-        const videoData = videos[videoIndex].track.album
-        const videoThumbnails: {[index:string]:string} = { high: videoData.images[0].url, medium: videoData.images[1].url, low: videoData.images[2].url }
+        const videoData = videos[videoIndex].track
+        const videoAlbumData = videoData.album
+        const videoThumbnails: {[index:string]:string} = { high: videoAlbumData.images[0].url, medium: videoAlbumData.images[1].url, low: videoAlbumData.images[2].url }
         const videoName = videoData.name
         const videoId = videoData.id
         const videoTags = store.get(videoId, []) as VideoTags
-        items.push(new Video(videoId, videoName, videoThumbnails, videoTags, ''))
+        const videoLink = `https://open.spotify.com/embed/track/${videoId}`
+        items.push(new Video(videoId, videoName, videoThumbnails, videoTags, videoLink))
       }
       return items
     })

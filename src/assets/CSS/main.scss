@@ -4,12 +4,25 @@
 @import "@/assets/CSS/bootstrap/scss/_functions.scss";
 
 // Include any default variable overrides here
-$body-bg: #212529;
+$body-bg: #2D132C;
+$body-color: #EE4540;
+
+$input-border-color: #fff;
+$border-color: $input-border-color;
 $input-bg: $body-bg;
+$input-color: $body-color;
+$input-active_color: #EE4540;
 
-$body-color: #fff;
+$button-bg: #fff;
+$button-color: #2D132C;
 
+$navbar-bg: #fff;
+$navbar-color: #2D132C;
 
+$danger: #C70039;
+
+$component-active-bg: $input-active_color;
+$navbar-link-hover-color: #EE4540;
 // Include remainder of required Bootstrap stylesheets
 @import "@/assets/CSS/bootstrap/scss/_variables.scss";
 @import "@/assets/CSS/bootstrap/scss/_mixins.scss";

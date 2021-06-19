@@ -3,6 +3,7 @@ import mainMenu from '../views/main_menu.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
+    name: 'home',
     path: '/',
     component: mainMenu
   },

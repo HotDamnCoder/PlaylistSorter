@@ -1,48 +1,36 @@
 <template>
   <navbar></navbar>
-  <div class="container pt-3">
-    <playlist-title />
+  <div class="container">
+    <playlist-title/>
+    <div class="pt-3"/>
     <div v-for="item in playlistItems" :key="item.name" class="d-table-row">
       <div class="row">
-        <div class="col">
-          <img
-            class="img-fluid img-thumbnail rounded"
-            :src="item.thumbnails.medium"
-          />
+        <div class="col pt-3" style="position: relative;">
+              <thumbnail :thumbnailURL="item.thumbnails.high"/>
+              <play-button @onClick="openVideoPreview(item)"/>
         </div>
-        <div
-          class="
-            col
-            text-center
-            d-flex
-            flex-column
-            align-items-center
-            justify-content-center
-          "
-        >
+        <div class="col text-center d-flex flex-column align-items-center justify-content-center">
           <div class="row">
-            {{ item.name }}
+            <h5>{{ item.name }}</h5>
           </div>
           <div class="row pt-3">
-            <vue-tags-input
-              :tags="item.tags"
-              @tags-changed="(newTags) => updateItemTags(item, newTags)"
+            <vue-tags-input modelValue="" :tags="item.tags" @tags-changed="(newTags) => updateItemTags(item, newTags)"
             />
           </div>
         </div>
       </div>
     </div>
     <centered-container>
-      <button
-        type="button"
-        class="btn btn-primary btn-lg"
-        @click="startSorting()"
-      >Sort songs to playlists based on tags
-      </button>
+      <styled-button btnText="Sort songs to playlists based on tags" @onClick="startSorting()"/>
     </centered-container>
+    <div class="pb-3"/>
   </div>
 </template>
-
+<style lang="scss" scoped>
+.container{
+  padding-top: 48px;
+}
+</style>
 <script lang="ts">
 import { defineComponent } from 'vue'
 import navbar from '@/components/Navbar.vue'
@@ -53,6 +41,9 @@ import { mapGetters, mapMutations } from 'vuex'
 import { IPlaylistAPI } from '@/assets/TS/IPlaylistAPI'
 import { Video } from '@/assets/TS/Video'
 import Store from 'electron-store'
+import StyledButton from '@/components/StyledButton.vue'
+import Thumbnail from '@/components/Thumbnail.vue'
+import PlayButton from '@/components/PlayButton.vue'
 const store = new Store()
 
 export default defineComponent({
@@ -60,7 +51,10 @@ export default defineComponent({
     navbar,
     VueTagsInput,
     PlaylistTitle,
-    CenteredContainer
+    CenteredContainer,
+    StyledButton,
+    Thumbnail,
+    PlayButton
   },
   computed: {
     playlistItems: function (): Array<Video> {
@@ -72,6 +66,9 @@ export default defineComponent({
     ...mapGetters(['getPlaylistID'])
   },
   methods: {
+    openVideoPreview (video: Video) {
+      window.open(video.link)
+    },
     updateItemTags (item: Video, newTags: Array<{text: string, tiClasses: Array<string>}>) {
       item.tags = newTags
       store.set(item.id, item.tags)
@@ -80,6 +77,7 @@ export default defineComponent({
       const sortedPlaylists: {[index: string]: Array<string>} = {}
       for (const itemIndex in this.playlistItems) {
         const item = this.playlistItems[itemIndex]
+        console.log(item)
         for (const tagIndex in item.tags) {
           const tag = item.tags[tagIndex].text
           if (tag in sortedPlaylists) {
