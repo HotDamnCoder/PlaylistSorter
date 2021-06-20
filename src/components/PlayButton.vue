@@ -17,12 +17,6 @@ div{
 <script lang="ts">
 import { defineComponent } from 'vue'
 export default defineComponent({
-  props: {
-    onBtnClick: {
-      type: Function,
-      required: true
-    }
-  },
   emits: ['onClick']
 })
 </script>

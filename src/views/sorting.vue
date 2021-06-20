@@ -5,9 +5,11 @@
     <div class="pt-3"/>
     <div v-for="item in playlistItems" :key="item.name" class="d-table-row">
       <div class="row">
-        <div class="col pt-3" style="position: relative;">
+        <div class="col pt-3">
+          <div class="d-inline-block position-relative">
               <thumbnail :thumbnailURL="item.thumbnails.high"/>
               <play-button @onClick="openVideoPreview(item)"/>
+          </div>
         </div>
         <div class="col text-center d-flex flex-column align-items-center justify-content-center">
           <div class="row">
@@ -71,13 +73,14 @@ export default defineComponent({
     },
     updateItemTags (item: Video, newTags: Array<{text: string, tiClasses: Array<string>}>) {
       item.tags = newTags
+      //* Stores tags in a JSON in local storage with the key being the items id
       store.set(item.id, item.tags)
     },
-    startSorting () {
+    async startSorting () {
       const sortedPlaylists: {[index: string]: Array<string>} = {}
+      //* Creates playlists based on tags, where playlist's name is the tag and items are video ids
       for (const itemIndex in this.playlistItems) {
         const item = this.playlistItems[itemIndex]
-        console.log(item)
         for (const tagIndex in item.tags) {
           const tag = item.tags[tagIndex].text
           if (tag in sortedPlaylists) {
@@ -87,21 +90,57 @@ export default defineComponent({
           }
         }
       }
-      console.log(sortedPlaylists)
       for (const playlistName in sortedPlaylists) {
         const playlistItems = sortedPlaylists[playlistName]
-        if (!this.playlistAPI.checkIfPlaylistExists(playlistName)) {
-          this.playlistAPI.createPlaylist(playlistName)
+        //*  Creates a list of unique playlist items
+        const uniquePlaylistItems = playlistItems.filter((item, itemIndex) => {
+          return playlistItems.indexOf(item) === itemIndex
+        })
+        let playlistId: string
+        try {
+          playlistId = await this.playlistAPI.getPlaylistIdFromName(playlistName)
+        } catch (error) {
+          alert(`Failed to get playlist id from name: ${error.message}`)
+          return null
         }
-        this.playlistAPI.addItemsToPlaylist(playlistName, playlistItems)
+        if (playlistId === '') {
+          await this.playlistAPI.createPlaylist(playlistName).then((createdPlaylistId: string) => {
+            playlistId = createdPlaylistId
+          }).catch((error) => {
+            alert(`Failed to created new playlist: ${error.message}`)
+            return null
+          })
+        } else {
+          await this.playlistAPI.getPlaylistVideos(playlistId).then((videos: Array<Video>) => {
+            //* This part removes already existing videos in playlist from uniquePlaylistItems
+            for (const videoIndex in videos) {
+              const video = videos[videoIndex]
+              if (uniquePlaylistItems.includes(video.id)) {
+                const duplicateIndex = playlistItems.indexOf(video.id)
+                uniquePlaylistItems.splice(duplicateIndex, 1)
+              }
+            }
+          }).catch((error) => {
+            alert(`Failed to get sorted playlist videos: ${error.message}`)
+            return null
+          })
+        }
+        if (uniquePlaylistItems.length > 0) {
+          this.playlistAPI.addItemsToPlaylist(playlistId, uniquePlaylistItems).catch((error) => {
+            console.log(error)
+            alert(`Failed to add videos to playlist: "${error.message}"`)
+            return null
+          })
+        }
       }
     },
     ...mapMutations(['setPlaylistItems'])
   },
   mounted () {
     this.playlistAPI.getPlaylistVideos(this.getPlaylistID().id).then((items) => {
-      console.log(items)
       this.setPlaylistItems(items)
+    }).catch((error) => {
+      alert(`Failed to get playlist videos: "${error.message}`)
     })
   }
 })

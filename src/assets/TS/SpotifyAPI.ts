@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { ipcRenderer } from 'electron'
@@ -28,21 +27,8 @@ export class SpotifyAPI implements IPlaylistAPI {
     })
   }
 
-  private getAuthUrl () {
+  private getAuthUrl () : string {
     return `https://accounts.spotify.com/authorize?response_type=token&client_id=${this.clientId}&scope=${this.clientScope}&redirect_uri=${this.redirectUri}`
-  }
-
-  private getPlaylistIdFromName (playlistName: string) : Promise<string> {
-    return this.api.getUserPlaylists().then((data) => {
-      const userPlaylists = data.body.items
-      for (const playlistIndex in userPlaylists) {
-        const playlist = userPlaylists[playlistIndex]
-        if (playlist.name === playlistName) {
-          return playlist.id
-        }
-      }
-      return ''
-    })
   }
 
   private getVideosURIS (videoIds: Array<string>) : Array<string> {
@@ -77,18 +63,40 @@ export class SpotifyAPI implements IPlaylistAPI {
     })
   }
 
+  public getPlaylistIdFromName (playlistName: string) : Promise<string> {
+    return this.api.getUserPlaylists().then((data) => {
+      const userPlaylists = data.body.items
+      for (const playlistIndex in userPlaylists) {
+        const playlist = userPlaylists[playlistIndex]
+        if (playlist.name === playlistName) {
+          return playlist.id
+        }
+      }
+      return ''
+    }, (error) => {
+      throw new Error(error.message)
+    })
+  }
+
   public getPlaylist (playlistId: string): Promise<Playlist> {
     return this.api.getPlaylist(playlistId).then((response) => {
       const playlistData = response.body
       const playlistThumbnails = { high: playlistData.images[0].url, medium: playlistData.images[1].url, low: playlistData.images[2].url }
       const playlistName = playlistData.name
       return new Playlist(playlistId, playlistName, playlistThumbnails)
+    }, (error) => {
+      throw new Error(error.message)
     })
   }
 
   public getPlaylistVideos (playlistId: string): Promise<Array<Video>> {
     return this.api.getPlaylistTracks(playlistId).then((response: any) => {
-      const videos = response.body.tracks.items
+      let videos
+      if ('tracks' in response.body) {
+        videos = response.body.tracks.items
+      } else {
+        videos = response.body.items
+      }
       const items: Array<Video> = []
       for (const videoIndex in videos) {
         const videoData = videos[videoIndex].track
@@ -101,22 +109,24 @@ export class SpotifyAPI implements IPlaylistAPI {
         items.push(new Video(videoId, videoName, videoThumbnails, videoTags, videoLink))
       }
       return items
+    }, (error) => {
+      throw new Error(error.message)
     })
   }
 
-  public checkIfPlaylistExists (playlistName: string) : Promise<boolean> {
-    return this.getPlaylistIdFromName(playlistName).then((playlistId) => {
-      return playlistId !== ''
+  public async createPlaylist (playlistName: string): Promise<string> {
+    return this.api.createPlaylist(playlistName, { public: false }).then((response) => {
+      return response.body.id
+    }, (error) => {
+      throw new Error(error.message)
     })
   }
 
-  public createPlaylist (playlistName: string): Promise<any> {
-    return this.api.createPlaylist(playlistName, { public: false })
-  }
-
-  public addItemsToPlaylist (playlistName: string, playlistItems: Array<string>): Promise<any> {
-    return this.getPlaylistIdFromName(playlistName).then((id) => {
-      return this.api.addTracksToPlaylist(id, this.getVideosURIS(playlistItems))
-    })
+  public async addItemsToPlaylist (playlistId: string, playlistItems: Array<string>): Promise<void> {
+    try {
+      await this.api.addTracksToPlaylist(playlistId, this.getVideosURIS(playlistItems))
+    } catch (error) {
+      throw new Error(error.message)
+    }
   }
 }

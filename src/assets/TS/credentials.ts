@@ -5,7 +5,7 @@ const YOUTUBE_DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/yo
 const SPOTIFY_CLIENT_SECRET = '***REMOVED***'
 const SPOTIFY_CLIENT_ID = '***REMOVED***'
 const SPOTIFY_REDIRECT_URI = 'http://localhost:8080/callback'
-const SPOTIFY_SCOPE = 'user-read-private user-read-email'
+const SPOTIFY_SCOPE = 'user-read-private playlist-modify-private playlist-read-private'
 
 const SPOTIFY_ERROR_RE = /(?<=error=).+?(?=&)/g
 const SPOTIFY_AUTH_TOKEN_RE = /(?<=access_token=).+?(?=&)/g

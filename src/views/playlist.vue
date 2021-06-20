@@ -15,7 +15,7 @@
       </div>
   </centered-container>
 </template>
-<style lang="scss">
+<style lang="scss" scoped>
 img {
   height: 300px !important;
 }
@@ -60,20 +60,28 @@ export default defineComponent({
   },
   mounted () {
     var playlistAPI: IPlaylistAPI
-    if (this.getPlaylistID().type.toLowerCase() === 'youtube') {
-      playlistAPI = new YoutubeAPI(this.$gapi)
-    } else {
-      playlistAPI = new SpotifyAPI(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_SCOPE, SPOTIFY_REDIRECT_URI)
-    }
-    this.setPlaylistAPI(playlistAPI)
-    playlistAPI.loginToAPI().then((logedIn) => {
-      if (logedIn) {
-        playlistAPI.getPlaylist(this.getPlaylistID().id).then((playlist: Playlist) => {
-          this.setPlaylistName(playlist.name)
-          this.setPlaylistThumbnailURL(playlist.thumbnails.medium)
-        })
+    try {
+      if (this.getPlaylistID().type.toLowerCase() === 'youtube') {
+        playlistAPI = new YoutubeAPI(this.$gapi)
+      } else {
+        playlistAPI = new SpotifyAPI(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_SCOPE, SPOTIFY_REDIRECT_URI)
       }
-    })
+      this.setPlaylistAPI(playlistAPI)
+      playlistAPI.loginToAPI().then((logedIn) => {
+        if (logedIn) {
+          playlistAPI.getPlaylist(this.getPlaylistID().id).then((playlist: Playlist) => {
+            this.setPlaylistName(playlist.name)
+            this.setPlaylistThumbnailURL(playlist.thumbnails.medium)
+          })
+        } else {
+          alert("You're not logged in!")
+        }
+      }).catch((error) => {
+        alert(`Failed to log in: "${error.message}"`)
+      })
+    } catch (error) {
+      alert(`Failed to initialize playlist API: ${error.message}`)
+    }
   }
 })
 </script>

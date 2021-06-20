@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { IPlaylistAPI } from './IPlaylistAPI'
 import { VueGapi } from 'vue-gapi'
@@ -19,16 +18,32 @@ export class YoutubeAPI implements IPlaylistAPI {
     })
   }
 
-  private listPlaylistInfo (playlistId: string) {
+  private listUserPlaylistsInfos = (playlistInfos = [], nextPageToken = ''): Promise<any> => {
+    return this.api.playlists.list({
+      part: ['snippet'],
+      mine: true
+    }).then((response: any) => {
+      const items = response.result.items
+      playlistInfos = playlistInfos.concat(items)
+      if (nextPageToken !== undefined && nextPageToken !== '') {
+        return this.listUserPlaylistsInfos(playlistInfos, nextPageToken)
+      } else {
+        return playlistInfos
+      }
+    })
+  }
+
+  private listPlaylistInfo (playlistId: string) :Promise<any> {
     return this.api.playlists.list({
       part: ['snippet'],
       id: [playlistId]
+
     }).then((response: any) => {
       return response.result.items[0]
     })
   }
 
-  private listPlaylistItems = (playlistId: string, playlistItems = [], nextPageToken = '') => {
+  private listPlaylistItems = (playlistId: string, playlistItems = [], nextPageToken = ''): Promise<any> => {
     return this.api.playlistItems.list({
       part: ['snippet'],
       playlistId: [playlistId],
@@ -46,37 +61,41 @@ export class YoutubeAPI implements IPlaylistAPI {
     })
   }
 
-  private getThumbnailUrls (thumbnails: any) {
-    console.log(thumbnails)
-    if (thumbnails === {}) {
-      return { high: '', medium: '', low: '' }
-    } else {
-      const thumbnailUrls = { high: thumbnails.high.url, medium: thumbnails.high.url, low: thumbnails.default.url }
-      return thumbnailUrls
-    }
-  }
-
-  private getPlaylistIdFromName (playlistName: string): Promise<string> {
-    return this.api.search.list({
-      part: ['snippet'],
-      q: playlistName,
-      forMine: true,
-      type: ['playlist'],
-      maxResults: 25
-    }).then((response: any) => {
-      const searchResults = response.result.items
-      if (searchResults.length >= 1) {
-        const playlistData = searchResults[0].snippet
-        return playlistData.id
+  private getThumbnailUrls (thumbnails: any) : { high: string, medium: string, low: string } {
+    try {
+      const thumbnailUrls = { high: '', medium: '', low: '' }
+      if ('standard' in thumbnails) {
+        thumbnailUrls.high = thumbnails.standard.url
       } else {
-        return ''
+        thumbnailUrls.high = thumbnails.high.url
       }
-    })
+      thumbnailUrls.medium = thumbnails.high.url
+      thumbnailUrls.low = thumbnails.medium.url
+      return thumbnailUrls
+    } catch {
+      throw new Error("Couldn't get thumbnails")
+    }
   }
 
   public loginToAPI (): Promise<boolean> {
     return this.vueGAPI.login().then((loginResponse) => {
       return loginResponse.hasGrantedScopes
+    }, (error: any) => {
+      throw new Error(error.result.error.message)
+    })
+  }
+
+  public getPlaylistIdFromName (playlistName: string): Promise<string> {
+    return this.listUserPlaylistsInfos().then((playlistInfos: any) => {
+      for (const playlistInfoIndex in playlistInfos) {
+        const playlistInfo = playlistInfos[playlistInfoIndex]
+        if (playlistName === playlistInfo.snippet.title) {
+          return playlistInfo.id
+        }
+      }
+      return ''
+    }, (error: any) => {
+      throw new Error(error.result.error.message)
     })
   }
 
@@ -86,6 +105,8 @@ export class YoutubeAPI implements IPlaylistAPI {
       const playlistThumbnails = this.getThumbnailUrls(playlistInfo.thumbnails)
       const playlistName = playlistInfo.title
       return new Playlist(playlistId, playlistName, playlistThumbnails)
+    }, (error: any) => {
+      throw new Error(error.result.error.message)
     })
   }
 
@@ -94,52 +115,55 @@ export class YoutubeAPI implements IPlaylistAPI {
       const videos = []
       for (const itemIndex in items) {
         const videoData = items[itemIndex].snippet
-        const videoThumbnails = this.getThumbnailUrls(videoData.thumbnails)
         const videoName = videoData.title
-        const videoId = videoData.resourceId.videoId
-        const videoTags = store.get(videoId, []) as VideoTags
-        const videoLink = `https://www.youtube.com/embed/${videoId}`
-        videos.push(new Video(videoId, videoName, videoThumbnails, videoTags, videoLink))
-      }
-      return videos
-    })
-  }
-
-  public checkIfPlaylistExists (playlistName: string): Promise<boolean> {
-    return this.getPlaylistIdFromName(playlistName).then((playlistId: string) => {
-      return playlistId !== ''
-    })
-  }
-
-  public createPlaylist (playlistName: string): Promise<any> {
-    return this.api.playlists.insert({
-      resource: {
-        snippet: {
-          title: playlistName
-        },
-        status: {
-          privacyStatus: 'private'
+        if (videoName !== 'Private video' && videoName !== 'Deleted video') {
+          const videoThumbnails = this.getThumbnailUrls(videoData.thumbnails)
+          const videoId = videoData.resourceId.videoId
+          const videoTags = store.get(videoId, []) as VideoTags
+          const videoLink = `https://www.youtube.com/embed/${videoId}?autoplay=1`
+          videos.push(new Video(videoId, videoName, videoThumbnails, videoTags, videoLink))
         }
       }
+      return videos
+    }, (error: any) => {
+      throw new Error(error.result.error.message)
     })
   }
 
-  public addItemsToPlaylist = (playlistName: string, items: Array<string>, itemIndex = 0) : Promise<any> => {
+  public async createPlaylist (playlistName: string): Promise<string> {
     return this.api.playlists.insert({
       part: ['snippet'],
       resource: {
         snippet: {
-          playlistId: this.getPlaylistIdFromName(playlistName),
+          title: playlistName
+        }
+      }
+    }).then((response: any) => {
+      console.log(response)
+      return ''
+    }, (error: any) => {
+      throw new Error(error.result.error.message)
+    })
+  }
+
+  public addItemsToPlaylist = async (playlistId: string, items: Array<string>, itemIndex = 0) : Promise<void> => {
+    await this.api.playlistItems.insert({
+      part: ['snippet'],
+      resource: {
+        snippet: {
+          playlistId: playlistId,
           resourceId: {
             kind: 'youtube#video',
             videoId: items[itemIndex]
           }
         }
       }
-    }).then((_response: any) => {
-      if (itemIndex <= items.length - 1) {
-        return this.addItemsToPlaylist(playlistName, items, itemIndex++)
-      }
+    }, (error: any) => {
+      throw new Error(error.result.error.message)
     })
+    itemIndex += 1
+    if (itemIndex <= items.length - 1) {
+      await this.addItemsToPlaylist(playlistId, items, itemIndex)
+    }
   }
 }

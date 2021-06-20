@@ -1,5 +1,6 @@
 {
   "name": "playlist_sorter",
+  "productName": "Playlist sorter",
   "version": "0.1.0",
   "private": true,
   "scripts": {
