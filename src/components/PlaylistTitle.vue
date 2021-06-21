@@ -11,12 +11,12 @@
 }
 </style>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 export default defineComponent({
   computed: {
     playlistName: function () {
-      return this.$store.getters.getPlaylistName() as string
-    }
-  }
-})
+      return this.$store.getters.getPlaylistName() as string;
+    },
+  },
+});
 </script>

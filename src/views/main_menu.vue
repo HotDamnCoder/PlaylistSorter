@@ -35,35 +35,35 @@
 </style>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import CenteredContainer from '@/components/CenteredContainer.vue'
-import StyledButton from '@/components/StyledButton.vue'
-import { PlaylistId } from '@/assets/TS/PlaylistID'
-import { mapMutations } from 'vuex'
+import { defineComponent } from "vue";
+import CenteredContainer from "@/components/CenteredContainer.vue";
+import StyledButton from "@/components/StyledButton.vue";
+import { PlaylistId } from "@/assets/TS/PlaylistID";
+import { mapMutations } from "vuex";
 
 export default defineComponent({
-  data () {
+  data() {
     return {
-      error: '',
-      url: ''
-    }
+      error: "",
+      url: "",
+    };
   },
   methods: {
-    validateForm (e: { preventDefault: () => void }) {
-      e.preventDefault() //*  Prevents default form action
-      this.error = ''
+    validateForm(e: { preventDefault: () => void }) {
+      e.preventDefault(); //*  Prevents default form action
+      this.error = "";
       try {
-        this.setPlaylistID(new PlaylistId(this.url))
-        this.$router.push('playlist')
+        this.setPlaylistID(new PlaylistId(this.url));
+        this.$router.push("playlist");
       } catch (error) {
-        this.error = error.message //
+        this.error = error.message; //
       }
     },
-    ...mapMutations(['setPlaylistID'])
+    ...mapMutations(["setPlaylistID"]),
   },
   components: {
     CenteredContainer,
-    StyledButton
-  }
-})
+    StyledButton,
+  },
+});
 </script>

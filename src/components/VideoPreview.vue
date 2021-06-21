@@ -5,25 +5,25 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue'
-import Thumbnail from '@/components/Thumbnail.vue'
-import PlayButton from '@/components/PlayButton.vue'
-import { Video } from '@/assets/TS/Video'
+import { defineComponent } from "vue";
+import Thumbnail from "@/components/Thumbnail.vue";
+import PlayButton from "@/components/PlayButton.vue";
+import { Video } from "@/assets/TS/Video";
 export default defineComponent({
   components: {
     Thumbnail,
-    PlayButton
+    PlayButton,
   },
   methods: {
-    openVideoPreview (video: Video) {
-      window.open(video.link)
-    }
+    openVideoPreview(video: Video) {
+      window.open(video.link);
+    },
   },
   props: {
     item: {
       type: Video,
-      required: true
-    }
-  }
-})
+      required: true,
+    },
+  },
+});
 </script>

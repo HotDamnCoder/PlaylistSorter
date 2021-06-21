@@ -3,15 +3,15 @@ class Playlist {
   name: string;
   thumbnails: { [index: string]: string };
 
-  constructor (
+  constructor(
     id: string,
     name: string,
     thumbnails: { high: string; medium: string; low: string }
   ) {
-    this.id = id
-    this.name = name
-    this.thumbnails = thumbnails
+    this.id = id;
+    this.name = name;
+    this.thumbnails = thumbnails;
   }
 }
 
-export { Playlist }
+export { Playlist };

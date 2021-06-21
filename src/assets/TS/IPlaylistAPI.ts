@@ -1,5 +1,5 @@
-import { Playlist } from './Playlist'
-import { Video } from './Video'
+import { Playlist } from "./Playlist";
+import { Video } from "./Video";
 export interface IPlaylistAPI {
   loginToAPI(): Promise<boolean>;
   getPlaylist(playlistId: string): Promise<Playlist>;

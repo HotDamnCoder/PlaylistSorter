@@ -11,18 +11,18 @@ button {
 }
 </style>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 export default defineComponent({
   props: {
     btnText: {
       type: String,
-      required: true
+      required: true,
     },
     btnType: {
       type: String,
-      default: 'button'
-    }
+      default: "button",
+    },
   },
-  emits: ['onClick']
-})
+  emits: ["onClick"],
+});
 </script>

@@ -1,32 +1,32 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import mainMenu from '../views/main_menu.vue'
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import mainMenu from "../views/main_menu.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
-    name: 'home',
-    path: '/',
-    component: mainMenu
+    name: "home",
+    path: "/",
+    component: mainMenu,
   },
   {
-    name: 'converting',
-    path: '/converting',
-    component: () => import('../views/converting.vue')
+    name: "converting",
+    path: "/converting",
+    component: () => import("../views/converting.vue"),
   },
   {
-    name: 'sorting',
-    path: '/sorting',
-    component: () => import('../views/sorting.vue')
+    name: "sorting",
+    path: "/sorting",
+    component: () => import("../views/sorting.vue"),
   },
   {
-    name: 'playlist',
-    path: '/playlist',
-    component: () => import('../views/playlist.vue')
-  }
-]
+    name: "playlist",
+    path: "/playlist",
+    component: () => import("../views/playlist.vue"),
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;
