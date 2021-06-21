@@ -5,27 +5,33 @@
       <playlist-title />
     </centered-container>
     <div class="pt-3" />
+    <div class="row pb-3">
+      <div
+        class="col d-flex flex-column align-items-center justify-content-center"
+      >
+        <h1 class="text-center display-6">{{ playlistType }}</h1>
+      </div>
+      <div
+        class="
+          col-md-auto
+          pt-3
+          text-center
+          d-flex
+          flex-column
+          align-items-center
+          justify-content-center
+        "
+      >
+        <h1>></h1>
+      </div>
+      <div
+        class="col d-flex flex-column align-items-center justify-content-center"
+      >
+        <h1 class="text-center display-6">{{ otherPlaylistType }}</h1>
+      </div>
+    </div>
     <div v-for="item in playlistItems" :key="item.name">
       <div class="row">
-        <div class="col pt-3">
-          <div class="row">
-            <video-preview :item="item" />
-          </div>
-          <div
-            class="row
-              text-center
-              d-flex
-              flex-column
-              align-items-center
-              justify-content-center
-            "
-          >
-            <h5>{{ item.name }}</h5>
-          </div>
-        </div>
-        <div class="col pt-3">
-            <h1>></h1>
-        </div>
         <div class="col pt-3">
           <div class="row">
             <video-preview :item="item" />
@@ -43,6 +49,47 @@
             <h5>{{ item.name }}</h5>
           </div>
         </div>
+        <div
+          class="
+            col-md-auto
+            pt-3
+            text-center
+            d-flex
+            flex-column
+            align-items-center
+            justify-content-center
+          "
+        >
+          <h1>></h1>
+        </div>
+        <div
+          class="
+            col
+            pt-3
+            text-center
+            d-flex
+            flex-column
+            align-items-center
+            justify-content-center
+          "
+        >
+          <label for="exampleDataList" class="form-label"
+            >Datalist example</label
+          >
+          <input
+            class="form-control"
+            list="datalistOptions"
+            id="exampleDataList"
+            placeholder="Type to search..."
+          />
+          <datalist id="datalistOptions">
+            <option value="San Francisco"></option>
+            <option value="New York"></option>
+            <option value="Seattle"></option>
+            <option value="Los Angeles"></option>
+            <option value="Chicago"></option>
+          </datalist>
+        </div>
       </div>
     </div>
     <centered-container>
@@ -55,42 +102,53 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue'
-import navbar from '@/components/Navbar.vue'
-import CenteredContainer from '@/components/CenteredContainer.vue'
-import PlaylistTitle from '@/components/PlaylistTitle.vue'
-import VideoPreview from '@/components/VideoPreview.vue'
-import { mapGetters, mapMutations } from 'vuex'
-import { IPlaylistAPI } from '@/assets/TS/IPlaylistAPI'
-import { Video } from '@/assets/TS/Video'
+import { defineComponent } from "vue";
+import navbar from "@/components/Navbar.vue";
+import CenteredContainer from "@/components/CenteredContainer.vue";
+import PlaylistTitle from "@/components/PlaylistTitle.vue";
+import VideoPreview from "@/components/VideoPreview.vue";
+import { mapGetters, mapMutations } from "vuex";
+import { IPlaylistAPI } from "@/assets/TS/IPlaylistAPI";
+import { Video } from "@/assets/TS/Video";
 export default defineComponent({
   components: {
     navbar,
     CenteredContainer,
     PlaylistTitle,
-    VideoPreview
+    VideoPreview,
   },
   computed: {
     playlistItems: function (): Array<Video> {
-      return this.$store.getters.getPlaylistItems() as Array<Video>
+      return this.$store.getters.getPlaylistItems() as Array<Video>;
     },
     playlistAPI: function (): IPlaylistAPI {
-      return this.$store.getters.getPlaylistAPI() as IPlaylistAPI
+      return this.$store.getters.getPlaylistAPI() as IPlaylistAPI;
     },
-    ...mapGetters(['getPlaylistID'])
+    playlistType: function (): string {
+      return this.$store.getters.getPlaylistID().type;
+    },
+    otherPlaylistType: function (): string {
+      switch (this.playlistType.toLowerCase()) {
+        case "youtube":
+          return "Spotify";
+        default:
+          return "Youtube";
+      }
+    },
+    ...mapGetters(["getPlaylistID"]),
   },
   methods: {
-    ...mapMutations(['setPlaylistItems'])
+    ...mapMutations(["setPlaylistItems"]),
   },
-  mounted () {
+  mounted() {
     this.playlistAPI
       .getPlaylistVideos(this.getPlaylistID().id)
-      .then(items => {
-        this.setPlaylistItems(items)
+      .then((items) => {
+        this.setPlaylistItems(items);
       })
-      .catch(error => {
-        alert(`Failed to get playlist videos: "${error.message}`)
-      })
-  }
-})
+      .catch((error) => {
+        alert(`Failed to get playlist videos: "${error.message}`);
+      });
+  },
+});
 </script>
