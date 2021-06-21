@@ -22,7 +22,6 @@ const routes: Array<RouteRecordRaw> = [
     path: '/playlist',
     component: () => import('../views/playlist.vue')
   }
-
 ]
 
 const router = createRouter({

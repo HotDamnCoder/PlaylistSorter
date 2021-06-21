@@ -1,62 +1,63 @@
 <template>
   <navbar></navbar>
-  <div class="container">
-    <playlist-title/>
-    <div class="pt-3"/>
-    <div v-for="item in playlistItems" :key="item.name" class="d-table-row">
+  <div class="container pt-5">
+    <centered-container>
+      <playlist-title />
+    </centered-container>
+    <div class="pt-3" />
+    <div v-for="item in playlistItems" :key="item.name">
       <div class="row">
         <div class="col pt-3">
-          <div class="d-inline-block position-relative">
-              <thumbnail :thumbnailURL="item.thumbnails.high"/>
-              <play-button @onClick="openVideoPreview(item)"/>
-          </div>
+          <video-preview :item="item" />
         </div>
-        <div class="col text-center d-flex flex-column align-items-center justify-content-center">
+        <div
+          class="col text-center d-flex flex-column align-items-center justify-content-center"
+        >
           <div class="row">
             <h5>{{ item.name }}</h5>
           </div>
           <div class="row pt-3">
-            <vue-tags-input modelValue="" :tags="item.tags" @tags-changed="(newTags) => updateItemTags(item, newTags)"
+            <vue-tags-input
+              modelValue=""
+              :tags="item.tags"
+              @tags-changed="newTags => updateItemTags(item, newTags)"
             />
           </div>
         </div>
       </div>
     </div>
     <centered-container>
-      <styled-button btnText="Sort songs to playlists based on tags" @onClick="startSorting()"/>
+      <styled-button
+        btnText="Sort songs to playlists based on tags"
+        @onClick="startSorting()"
+      />
     </centered-container>
-    <div class="pb-3"/>
+    <div class="pb-3" />
   </div>
 </template>
-<style lang="scss" scoped>
-.container{
-  padding-top: 48px;
-}
-</style>
 <script lang="ts">
 import { defineComponent } from 'vue'
-import navbar from '@/components/Navbar.vue'
+import Navbar from '@/components/Navbar.vue'
 import VueTagsInput from '@/components/vue-tags-input/vue-tags-input.vue'
 import PlaylistTitle from '@/components/PlaylistTitle.vue'
 import CenteredContainer from '@/components/CenteredContainer.vue'
+import StyledButton from '@/components/StyledButton.vue'
+import VideoPreview from '@/components/VideoPreview.vue'
 import { mapGetters, mapMutations } from 'vuex'
 import { IPlaylistAPI } from '@/assets/TS/IPlaylistAPI'
 import { Video } from '@/assets/TS/Video'
 import Store from 'electron-store'
-import StyledButton from '@/components/StyledButton.vue'
-import Thumbnail from '@/components/Thumbnail.vue'
-import PlayButton from '@/components/PlayButton.vue'
+
 const store = new Store()
 
 export default defineComponent({
   components: {
-    navbar,
+    Navbar,
     VueTagsInput,
     PlaylistTitle,
     CenteredContainer,
     StyledButton,
-    Thumbnail,
-    PlayButton
+    VideoPreview
   },
   computed: {
     playlistItems: function (): Array<Video> {
@@ -68,16 +69,16 @@ export default defineComponent({
     ...mapGetters(['getPlaylistID'])
   },
   methods: {
-    openVideoPreview (video: Video) {
-      window.open(video.link)
-    },
-    updateItemTags (item: Video, newTags: Array<{text: string, tiClasses: Array<string>}>) {
+    updateItemTags (
+      item: Video,
+      newTags: Array<{ text: string; tiClasses: Array<string> }>
+    ) {
       item.tags = newTags
       //* Stores tags in a JSON in local storage with the key being the items id
       store.set(item.id, item.tags)
     },
     async startSorting () {
-      const sortedPlaylists: {[index: string]: Array<string>} = {}
+      const sortedPlaylists: { [index: string]: Array<string> } = {}
       //* Creates playlists based on tags, where playlist's name is the tag and items are video ids
       for (const itemIndex in this.playlistItems) {
         const item = this.playlistItems[itemIndex]
@@ -98,50 +99,63 @@ export default defineComponent({
         })
         let playlistId: string
         try {
-          playlistId = await this.playlistAPI.getPlaylistIdFromName(playlistName)
+          playlistId = await this.playlistAPI.getPlaylistIdFromName(
+            playlistName
+          )
         } catch (error) {
           alert(`Failed to get playlist id from name: ${error.message}`)
           return null
         }
         if (playlistId === '') {
-          await this.playlistAPI.createPlaylist(playlistName).then((createdPlaylistId: string) => {
-            playlistId = createdPlaylistId
-          }).catch((error) => {
-            alert(`Failed to created new playlist: ${error.message}`)
-            return null
-          })
+          await this.playlistAPI
+            .createPlaylist(playlistName)
+            .then((createdPlaylistId: string) => {
+              playlistId = createdPlaylistId
+            })
+            .catch(error => {
+              alert(`Failed to created new playlist: ${error.message}`)
+              return null
+            })
         } else {
-          await this.playlistAPI.getPlaylistVideos(playlistId).then((videos: Array<Video>) => {
-            //* This part removes already existing videos in playlist from uniquePlaylistItems
-            for (const videoIndex in videos) {
-              const video = videos[videoIndex]
-              if (uniquePlaylistItems.includes(video.id)) {
-                const duplicateIndex = playlistItems.indexOf(video.id)
-                uniquePlaylistItems.splice(duplicateIndex, 1)
+          await this.playlistAPI
+            .getPlaylistVideos(playlistId)
+            .then((videos: Array<Video>) => {
+              //* This part removes already existing videos in playlist from uniquePlaylistItems
+              for (const videoIndex in videos) {
+                const video = videos[videoIndex]
+                if (uniquePlaylistItems.includes(video.id)) {
+                  const duplicateIndex = playlistItems.indexOf(video.id)
+                  uniquePlaylistItems.splice(duplicateIndex, 1)
+                }
               }
-            }
-          }).catch((error) => {
-            alert(`Failed to get sorted playlist videos: ${error.message}`)
-            return null
-          })
+            })
+            .catch(error => {
+              alert(`Failed to get sorted playlist videos: ${error.message}`)
+              return null
+            })
         }
         if (uniquePlaylistItems.length > 0) {
-          this.playlistAPI.addItemsToPlaylist(playlistId, uniquePlaylistItems).catch((error) => {
-            console.log(error)
-            alert(`Failed to add videos to playlist: "${error.message}"`)
-            return null
-          })
+          this.playlistAPI
+            .addItemsToPlaylist(playlistId, uniquePlaylistItems)
+            .catch(error => {
+              console.log(error)
+              alert(`Failed to add videos to playlist: "${error.message}"`)
+              return null
+            })
         }
       }
     },
     ...mapMutations(['setPlaylistItems'])
   },
   mounted () {
-    this.playlistAPI.getPlaylistVideos(this.getPlaylistID().id).then((items) => {
-      this.setPlaylistItems(items)
-    }).catch((error) => {
-      alert(`Failed to get playlist videos: "${error.message}`)
-    })
+    this.playlistAPI
+      .getPlaylistVideos(this.getPlaylistID().id)
+      .then(items => {
+        this.setPlaylistItems(items)
+      })
+      .catch(error => {
+        alert(`Failed to get playlist videos: "${error.message}`)
+      })
   }
 })
 </script>

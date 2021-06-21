@@ -6,7 +6,7 @@
   </div>
 </template>
 <style lang="scss" scoped>
-.row{
+.row {
   padding-top: 48px;
 }
 </style>

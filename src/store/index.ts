@@ -27,23 +27,21 @@ const store = createStore({
       state.playlistItems = items
     }
   },
-  actions: {
-
-  },
+  actions: {},
   getters: {
-    getPlaylistID: (state) => () => {
+    getPlaylistID: state => () => {
       return state.playlistID as PlaylistId
     },
-    getPlaylistAPI: (state) => () => {
+    getPlaylistAPI: state => () => {
       return state.playlistAPI as IPlaylistAPI
     },
-    getPlaylistName: (state) => () => {
+    getPlaylistName: state => () => {
       return state.playlistName as string
     },
-    getPlaylistThumbnailURL: (state) => () => {
+    getPlaylistThumbnailURL: state => () => {
       return state.playlistThumbnailURL as string
     },
-    getPlaylistItems: (state) => () => {
+    getPlaylistItems: state => () => {
       return state.playlistItems as Array<Video>
     }
   }

@@ -3,7 +3,11 @@
 import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import { SPOTIFY_REDIRECT_URI, SPOTIFY_ERROR_RE, SPOTIFY_AUTH_TOKEN_RE } from '@/assets/TS/credentials'
+import {
+  SPOTIFY_REDIRECT_URI,
+  SPOTIFY_ERROR_RE,
+  SPOTIFY_AUTH_TOKEN_RE
+} from '@/assets/TS/credentials'
 import path from 'path'
 import Store from 'electron-store'
 Store.initRenderer()
@@ -27,13 +31,12 @@ async function createWindow () {
       contextIsolation: !(process.env
         .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
       nativeWindowOpen: true
-
     },
     title: 'Playlist fucker',
     icon: path.join(__dirname, '../src/assets/icons/playlist.png')
   })
   // Redirect Spotify OAuth code to renderer
-  win.webContents.on('did-create-window', (childWindow) => {
+  win.webContents.on('did-create-window', childWindow => {
     childWindow.webContents.on('will-redirect', (event, url) => {
       if (url.includes(SPOTIFY_REDIRECT_URI)) {
         childWindow.destroy()
@@ -46,7 +49,10 @@ async function createWindow () {
           const accessTokenMatches = url.match(SPOTIFY_AUTH_TOKEN_RE)
           if (accessTokenMatches) {
             if (accessTokenMatches) {
-              win.webContents.send('spotify_oauth_access', accessTokenMatches[0])
+              win.webContents.send(
+                'spotify_oauth_access',
+                accessTokenMatches[0]
+              )
             }
           }
         }
@@ -55,7 +61,7 @@ async function createWindow () {
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
-  // Load the url of the dev server if in development mode
+    // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
     if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
@@ -98,7 +104,7 @@ app.on('ready', async () => {
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {
-    process.on('message', (data) => {
+    process.on('message', data => {
       if (data === 'graceful-exit') {
         app.quit()
       }

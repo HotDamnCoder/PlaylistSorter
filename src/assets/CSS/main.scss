@@ -4,25 +4,25 @@
 @import "@/assets/CSS/bootstrap/scss/_functions.scss";
 
 // Include any default variable overrides here
-$body-bg: #2D132C;
-$body-color: #EE4540;
+$body-bg: #2d132c;
+$body-color: #ee4540;
 
 $input-border-color: #fff;
 $border-color: $input-border-color;
 $input-bg: $body-bg;
 $input-color: $body-color;
-$input-active_color: #EE4540;
+$input-active_color: #ee4540;
 
 $button-bg: #fff;
-$button-color: #2D132C;
+$button-color: #2d132c;
 
 $navbar-bg: #fff;
-$navbar-color: #2D132C;
+$navbar-color: #2d132c;
 
-$danger: #C70039;
+$danger: #c70039;
 
 $component-active-bg: $input-active_color;
-$navbar-link-hover-color: #EE4540;
+$navbar-link-hover-color: #ee4540;
 // Include remainder of required Bootstrap stylesheets
 @import "@/assets/CSS/bootstrap/scss/_variables.scss";
 @import "@/assets/CSS/bootstrap/scss/_mixins.scss";
@@ -43,7 +43,7 @@ $navbar-link-hover-color: #EE4540;
 
 // Add additional custom code here
 #app {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }

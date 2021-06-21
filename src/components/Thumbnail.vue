@@ -1,5 +1,9 @@
 <template>
-    <img v-if="thumbnailURL" :src="thumbnailURL" class= "img-fluid img-thumbnail rounded">
+  <img
+    v-if="thumbnailURL"
+    :src="thumbnailURL"
+    class="img-fluid img-thumbnail rounded"
+  />
 </template>
 
 <script lang="ts">
