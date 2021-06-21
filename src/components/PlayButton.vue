@@ -11,7 +11,7 @@ div{
     margin-left: -36px;
     margin-top: -36px;
     position: absolute;
-    background: url('~@/assets/playButton.png') no-repeat;
+    background: url('~@/assets/images/playButton.png') no-repeat;
 }
 </style>
 <script lang="ts">

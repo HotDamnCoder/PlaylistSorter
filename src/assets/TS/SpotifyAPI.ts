@@ -48,13 +48,16 @@ export class SpotifyAPI implements IPlaylistAPI {
     ipcRenderer.on('spotify_auth_error', (_event, errorCode) => {
       error = errorCode
     })
-    window.open(this.getAuthUrl())
+    const authWindow = window.open(this.getAuthUrl())
     return new Promise<boolean>((resolve) => {
       const intervalTimer = setInterval(() => {
-        if (this.api.getAccessToken() || error) {
+        if (this.api.getAccessToken() || error || authWindow?.closed) {
           clearInterval(intervalTimer)
           if (error) {
             alert(`An error occured login in to spotify API : ${error}`)
+            resolve(false)
+          }
+          if (authWindow?.closed && !this.api.getAccessToken()) {
             resolve(false)
           }
           resolve(true)

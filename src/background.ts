@@ -4,9 +4,9 @@ import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { SPOTIFY_REDIRECT_URI, SPOTIFY_ERROR_RE, SPOTIFY_AUTH_TOKEN_RE } from '@/assets/TS/credentials'
+import path from 'path'
 import Store from 'electron-store'
 Store.initRenderer()
-
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Scheme must be registered before the app is ready
@@ -29,7 +29,8 @@ async function createWindow () {
       nativeWindowOpen: true
 
     },
-    title: 'Playlist sorter'
+    title: 'Playlist fucker',
+    icon: path.join(__dirname, '../src/assets/icons/playlist.png')
   })
   // Redirect Spotify OAuth code to renderer
   win.webContents.on('did-create-window', (childWindow) => {
