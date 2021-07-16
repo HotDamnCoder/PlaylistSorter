@@ -4,10 +4,7 @@ import { ipcRenderer } from "electron";
 import { IPlaylistAPI } from "./IPlaylistAPI";
 import SpotifyWebApi from "spotify-web-api-node";
 import { Video } from "./Video";
-import Store from "electron-store";
 import { Playlist } from "./Playlist";
-import { VideoTags } from "./Tags";
-const store = new Store();
 export class SpotifyAPI implements IPlaylistAPI {
   private clientId: string;
   private clientSecret: string;
@@ -120,6 +117,7 @@ export class SpotifyAPI implements IPlaylistAPI {
         for (const videoIndex in videos) {
           const videoData = videos[videoIndex].track;
           const videoAlbumData = videoData.album;
+          const videoAuthor = videoData.artists[0].name;
           const videoThumbnails: { [index: string]: string } = {
             high: videoAlbumData.images[0].url,
             medium: videoAlbumData.images[1].url,
@@ -127,10 +125,15 @@ export class SpotifyAPI implements IPlaylistAPI {
           };
           const videoName = videoData.name;
           const videoId = videoData.id;
-          const videoTags = store.get(videoId, []) as VideoTags;
           const videoLink = `https://open.spotify.com/embed/track/${videoId}`;
           items.push(
-            new Video(videoId, videoName, videoThumbnails, videoTags, videoLink)
+            new Video(
+              videoId,
+              videoName,
+              videoThumbnails,
+              videoLink,
+              videoAuthor
+            )
           );
         }
         return items;
@@ -164,5 +167,40 @@ export class SpotifyAPI implements IPlaylistAPI {
     } catch (error) {
       throw new Error(error.message);
     }
+  }
+
+  public search(query: Video): Promise<Array<Video>> {
+    const improvedQuery = query.author + " - " + query.name;
+    return this.api.searchTracks(improvedQuery, { limit: 5 }).then(
+      (response) => {
+        const searchItems = response.body.tracks?.items;
+        const videos: Array<Video> = [];
+        for (const searchItemIndex in searchItems) {
+          const searchItem = searchItems[searchItemIndex as unknown as number];
+          const searchItemAuthor = searchItem.artists[0].name;
+          const searchItemLink = `https://open.spotify.com/embed/track/${searchItem.id}`;
+          const searchItemAlbumData = searchItem.album;
+          const searchItemThumbnials: { [index: string]: string } = {
+            high: searchItemAlbumData.images[0].url,
+            medium: searchItemAlbumData.images[1].url,
+            low: searchItemAlbumData.images[2].url,
+          };
+          videos.push(
+            new Video(
+              searchItem.id,
+              searchItem.name,
+              searchItemThumbnials,
+              searchItemLink,
+              searchItemAuthor
+            )
+          );
+        }
+        console.log(videos);
+        return videos;
+      },
+      (error: any) => {
+        throw new Error(error.message);
+      }
+    );
   }
 }

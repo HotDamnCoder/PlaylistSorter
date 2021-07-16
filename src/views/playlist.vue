@@ -67,25 +67,27 @@ export default defineComponent({
       return this.$router.push("sorting");
     },
   },
-  mounted() {
+  async mounted() {
     var playlistAPI: IPlaylistAPI;
     try {
-      if (this.getPlaylistID().type.toLowerCase() === "youtube") {
-        playlistAPI = new YoutubeAPI(this.$gapi);
-      } else {
-        playlistAPI = new SpotifyAPI(
-          SPOTIFY_CLIENT_ID,
-          SPOTIFY_CLIENT_SECRET,
-          SPOTIFY_SCOPE,
-          SPOTIFY_REDIRECT_URI
-        );
+      switch (this.getPlaylistID().type.toLowerCase()) {
+        case "youtube":
+          playlistAPI = new YoutubeAPI(this.$gapi);
+          break;
+        default:
+          playlistAPI = new SpotifyAPI(
+            SPOTIFY_CLIENT_ID,
+            SPOTIFY_CLIENT_SECRET,
+            SPOTIFY_SCOPE,
+            SPOTIFY_REDIRECT_URI
+          );
       }
       this.setPlaylistAPI(playlistAPI);
-      playlistAPI
+      await playlistAPI
         .loginToAPI()
-        .then((logedIn) => {
+        .then(async (logedIn) => {
           if (logedIn) {
-            playlistAPI
+            await playlistAPI
               .getPlaylist(this.getPlaylistID().id)
               .then((playlist: Playlist) => {
                 this.setPlaylistName(playlist.name);

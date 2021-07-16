@@ -1,24 +1,22 @@
-import { VideoTags } from "./Tags";
-
 class Video {
   id: string;
   name: string;
   thumbnails: { [index: string]: string };
-  tags: VideoTags;
   link: string;
+  author: string;
 
   constructor(
     id: string,
     name: string,
-    thumbnails: { [index: string]: string },
-    tags: VideoTags,
-    link: string
+    thumbnails: { [index: string]: string } = {},
+    link: string,
+    author = ""
   ) {
     this.id = id;
     this.name = name;
     this.thumbnails = thumbnails;
-    this.tags = tags;
     this.link = link;
+    this.author = author;
   }
 }
 export { Video };

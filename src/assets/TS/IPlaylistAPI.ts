@@ -7,4 +7,5 @@ export interface IPlaylistAPI {
   getPlaylistIdFromName(playistName: string): Promise<string>;
   createPlaylist(playlistName: string): Promise<string>;
   addItemsToPlaylist(playlistId: string, items: Array<string>): Promise<void>;
+  search(query: Video): Promise<Array<Video>>;
 }

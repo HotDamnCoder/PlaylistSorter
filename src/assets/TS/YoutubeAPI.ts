@@ -2,10 +2,7 @@
 import { IPlaylistAPI } from "./IPlaylistAPI";
 import { VueGapi } from "vue-gapi";
 import { Video } from "./Video";
-import Store from "electron-store";
 import { Playlist } from "./Playlist";
-import { VideoTags } from "./Tags";
-const store = new Store();
 
 export class YoutubeAPI implements IPlaylistAPI {
   private vueGAPI: VueGapi;
@@ -151,16 +148,9 @@ export class YoutubeAPI implements IPlaylistAPI {
           if (videoName !== "Private video" && videoName !== "Deleted video") {
             const videoThumbnails = this.getThumbnailUrls(videoData.thumbnails);
             const videoId = videoData.resourceId.videoId;
-            const videoTags = store.get(videoId, []) as VideoTags;
             const videoLink = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
             videos.push(
-              new Video(
-                videoId,
-                videoName,
-                videoThumbnails,
-                videoTags,
-                videoLink
-              )
+              new Video(videoId, videoName, videoThumbnails, videoLink)
             );
           }
         }
@@ -217,7 +207,42 @@ export class YoutubeAPI implements IPlaylistAPI {
     );
     itemIndex += 1;
     if (itemIndex <= items.length - 1) {
-      await this.addItemsToPlaylist(playlistId, items, itemIndex);
+      await this.addItemsToPlaylist(playlistId, items, itemIndex).catch(
+        (error) => {
+          throw new Error(error.result.error.message);
+        }
+      );
     }
   };
+
+  public search(query: Video): Promise<Array<Video>> {
+    return this.api.search
+      .list({
+        part: ["snippet"],
+        maxResults: 5,
+        q: query.name,
+      })
+      .then(
+        (response: any) => {
+          const searchItems = response.result.items;
+          const videos = [];
+          for (const searchItemIndex in searchItems) {
+            const searchItem = searchItems[searchItemIndex];
+            const videoData = searchItem.snippet;
+            const videoId = searchItem.id.videoId;
+            const videoName = videoData.title;
+            const videoThumbnails = this.getThumbnailUrls(videoData.thumbnails);
+            const videoLink = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            videos.push(
+              new Video(videoId, videoName, videoThumbnails, videoLink)
+            );
+          }
+          console.log(videos);
+          return videos;
+        },
+        (error: any) => {
+          throw new Error(error.result.error.message);
+        }
+      );
+  }
 }

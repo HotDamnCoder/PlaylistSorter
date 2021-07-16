@@ -26,7 +26,7 @@
           <div class="row pt-3">
             <vue-tags-input
               modelValue=""
-              :tags="item.tags"
+              :tags="storage.get(item.id, [])"
               @tags-changed="(newTags) => updateItemTags(item, newTags)"
             />
           </div>
@@ -55,7 +55,7 @@ import { IPlaylistAPI } from "@/assets/TS/IPlaylistAPI";
 import { Video } from "@/assets/TS/Video";
 import Store from "electron-store";
 
-const store = new Store();
+const localStorage = new Store();
 
 export default defineComponent({
   components: {
@@ -73,6 +73,9 @@ export default defineComponent({
     playlistAPI: function (): IPlaylistAPI {
       return this.$store.getters.getPlaylistAPI() as IPlaylistAPI;
     },
+    storage: function () {
+      return localStorage;
+    },
     ...mapGetters(["getPlaylistID"]),
   },
   methods: {
@@ -80,31 +83,38 @@ export default defineComponent({
       item: Video,
       newTags: Array<{ text: string; tiClasses: Array<string> }>
     ) {
-      item.tags = newTags;
       //* Stores tags in a JSON in local storage with the key being the items id
-      store.set(item.id, item.tags);
+      localStorage.set(item.id, newTags);
     },
-    async startSorting() {
+    sortIntoPlaylists() {
       const sortedPlaylists: { [index: string]: Array<string> } = {};
       //* Creates playlists based on tags, where playlist's name is the tag and items are video ids
       for (const itemIndex in this.playlistItems) {
         const item = this.playlistItems[itemIndex];
-        for (const tagIndex in item.tags) {
-          const tag = item.tags[tagIndex].text;
+        const itemTags = localStorage.get(item.id, []) as Array<{
+          text: string;
+        }>;
+        for (const tagIndex in itemTags) {
+          const tag = itemTags[tagIndex].text;
           if (tag in sortedPlaylists) {
-            sortedPlaylists[tag].push(item.id);
+            const tagPlaylist = sortedPlaylists[tag];
+            if (!tagPlaylist.includes(item.id)) {
+              tagPlaylist.push(item.id);
+            }
           } else {
             sortedPlaylists[tag] = [item.id];
           }
         }
       }
+      return sortedPlaylists;
+    },
+    async createSortedPlaylists(sortedPlaylists: {
+      [index: string]: Array<string>;
+    }) {
       for (const playlistName in sortedPlaylists) {
         const playlistItems = sortedPlaylists[playlistName];
-        //*  Creates a list of unique playlist items
-        const uniquePlaylistItems = playlistItems.filter((item, itemIndex) => {
-          return playlistItems.indexOf(item) === itemIndex;
-        });
         let playlistId: string;
+        //* Check if playlist exists (playlistId === "" if playlist doesnt exist)
         try {
           playlistId = await this.playlistAPI.getPlaylistIdFromName(
             playlistName
@@ -113,6 +123,7 @@ export default defineComponent({
           alert(`Failed to get playlist id from name: ${error.message}`);
           return null;
         }
+        //* Create new playlist if it didn't exist else remove every item that already exists in the playlist
         if (playlistId === "") {
           await this.playlistAPI
             .createPlaylist(playlistName)
@@ -130,9 +141,9 @@ export default defineComponent({
               //* This part removes already existing videos in playlist from uniquePlaylistItems
               for (const videoIndex in videos) {
                 const video = videos[videoIndex];
-                if (uniquePlaylistItems.includes(video.id)) {
+                if (playlistItems.includes(video.id)) {
                   const duplicateIndex = playlistItems.indexOf(video.id);
-                  uniquePlaylistItems.splice(duplicateIndex, 1);
+                  playlistItems.splice(duplicateIndex, 1);
                 }
               }
             })
@@ -141,9 +152,10 @@ export default defineComponent({
               return null;
             });
         }
-        if (uniquePlaylistItems.length > 0) {
-          this.playlistAPI
-            .addItemsToPlaylist(playlistId, uniquePlaylistItems)
+        //* Add items to playlist
+        if (playlistItems.length > 0 && playlistId !== "") {
+          await this.playlistAPI
+            .addItemsToPlaylist(playlistId, playlistItems)
             .catch((error) => {
               console.log(error);
               alert(`Failed to add videos to playlist: "${error.message}"`);
@@ -152,10 +164,13 @@ export default defineComponent({
         }
       }
     },
+    async startSorting() {
+      await this.createSortedPlaylists(this.sortIntoPlaylists());
+    },
     ...mapMutations(["setPlaylistItems"]),
   },
-  mounted() {
-    this.playlistAPI
+  async mounted() {
+    await this.playlistAPI
       .getPlaylistVideos(this.getPlaylistID().id)
       .then((items) => {
         this.setPlaylistItems(items);
