@@ -89,23 +89,21 @@ export default defineComponent({
     sortIntoPlaylists() {
       const sortedPlaylists: { [index: string]: Array<string> } = {};
       //* Creates playlists based on tags, where playlist's name is the tag and items are video ids
-      for (const itemIndex in this.playlistItems) {
-        const item = this.playlistItems[itemIndex];
+      this.playlistItems.forEach((item) => {
         const itemTags = localStorage.get(item.id, []) as Array<{
           text: string;
         }>;
-        for (const tagIndex in itemTags) {
-          const tag = itemTags[tagIndex].text;
-          if (tag in sortedPlaylists) {
-            const tagPlaylist = sortedPlaylists[tag];
+        itemTags.forEach((tag) => {
+          if (tag.text in sortedPlaylists) {
+            const tagPlaylist = sortedPlaylists[tag.text];
             if (!tagPlaylist.includes(item.id)) {
               tagPlaylist.push(item.id);
             }
           } else {
-            sortedPlaylists[tag] = [item.id];
+            sortedPlaylists[tag.text] = [item.id];
           }
-        }
-      }
+        });
+      });
       return sortedPlaylists;
     },
     async createSortedPlaylists(sortedPlaylists: {
@@ -120,10 +118,10 @@ export default defineComponent({
             playlistName
           );
         } catch (error) {
-          alert(`Failed to get playlist id from name: ${error.message}`);
-          return null;
+          alert(error.message);
+          return;
         }
-        //* Create new playlist if it didn't exist else remove every item that already exists in the playlist
+        //* Create new playlist if it didn't exist else remove duplicates
         if (playlistId === "") {
           await this.playlistAPI
             .createPlaylist(playlistName)
@@ -131,35 +129,33 @@ export default defineComponent({
               playlistId = createdPlaylistId;
             })
             .catch((error) => {
-              alert(`Failed to created new playlist: ${error.message}`);
-              return null;
+              alert(error.message);
+              throw error;
             });
         } else {
           await this.playlistAPI
             .getPlaylistVideos(playlistId)
             .then((videos: Array<Video>) => {
               //* This part removes already existing videos in playlist from uniquePlaylistItems
-              for (const videoIndex in videos) {
-                const video = videos[videoIndex];
+              videos.forEach((video) => {
                 if (playlistItems.includes(video.id)) {
                   const duplicateIndex = playlistItems.indexOf(video.id);
                   playlistItems.splice(duplicateIndex, 1);
                 }
-              }
+              });
             })
             .catch((error) => {
-              alert(`Failed to get sorted playlist videos: ${error.message}`);
-              return null;
+              alert(error.message);
+              throw error;
             });
         }
         //* Add items to playlist
-        if (playlistItems.length > 0 && playlistId !== "") {
+        if (playlistItems.length > 0) {
           await this.playlistAPI
             .addItemsToPlaylist(playlistId, playlistItems)
             .catch((error) => {
-              console.log(error);
-              alert(`Failed to add videos to playlist: "${error.message}"`);
-              return null;
+              alert(error.message);
+              throw error;
             });
         }
       }
@@ -169,14 +165,14 @@ export default defineComponent({
     },
     ...mapMutations(["setPlaylistItems"]),
   },
-  async mounted() {
+  async beforeMount() {
     await this.playlistAPI
       .getPlaylistVideos(this.getPlaylistID().id)
       .then((items) => {
         this.setPlaylistItems(items);
       })
       .catch((error) => {
-        alert(`Failed to get playlist videos: "${error.message}`);
+        alert(error.message);
       });
   },
 });

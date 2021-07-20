@@ -67,7 +67,8 @@ export default defineComponent({
       return this.$router.push("sorting");
     },
   },
-  async mounted() {
+
+  async beforeMount() {
     var playlistAPI: IPlaylistAPI;
     try {
       switch (this.getPlaylistID().type.toLowerCase()) {
@@ -82,27 +83,29 @@ export default defineComponent({
             SPOTIFY_REDIRECT_URI
           );
       }
-      this.setPlaylistAPI(playlistAPI);
-      await playlistAPI
-        .loginToAPI()
-        .then(async (logedIn) => {
-          if (logedIn) {
-            await playlistAPI
-              .getPlaylist(this.getPlaylistID().id)
-              .then((playlist: Playlist) => {
-                this.setPlaylistName(playlist.name);
-                this.setPlaylistThumbnailURL(playlist.thumbnails.medium);
-              });
-          } else {
-            alert("You're not logged in!");
-          }
-        })
-        .catch((error) => {
-          alert(`Failed to log in: "${error.message}"`);
-        });
     } catch (error) {
       alert(`Failed to initialize playlist API: ${error.message}`);
+      return;
     }
+    this.setPlaylistAPI(playlistAPI);
+    await playlistAPI
+      .loginToAPI()
+      .then(async (logedIn) => {
+        if (logedIn) {
+          await playlistAPI
+            .getPlaylist(this.getPlaylistID().id)
+            .then((playlist: Playlist) => {
+              this.setPlaylistName(playlist.name);
+              this.setPlaylistThumbnailURL(playlist.thumbnails.medium);
+            });
+        } else {
+          alert("You're not logged in!");
+        }
+      })
+      .catch((error) => {
+        alert(error.message);
+        throw error;
+      });
   },
 });
 </script>

@@ -34,11 +34,10 @@ export class SpotifyAPI implements IPlaylistAPI {
   }
 
   private getVideosURIS(videoIds: Array<string>): Array<string> {
-    const videoIdsURIS = [];
-    for (const videoIdIndex in videoIds) {
-      const videoId = videoIds[videoIdIndex];
+    const videoIdsURIS: Array<string> = [];
+    videoIds.forEach((videoId) => {
       videoIdsURIS.push(`spotify:track:${videoId}`);
-    }
+    });
     return videoIdsURIS;
   }
 
@@ -54,12 +53,13 @@ export class SpotifyAPI implements IPlaylistAPI {
     return new Promise<boolean>((resolve) => {
       const intervalTimer = setInterval(() => {
         if (this.api.getAccessToken() || error || authWindow?.closed) {
+          //* If access token has been set or error has occured or auth window is closed
           clearInterval(intervalTimer);
           if (error) {
-            alert(`An error occured login in to spotify API : ${error}`);
-            resolve(false);
+            throw new Error(`Failed to log in: "${error}"`);
           }
           if (authWindow?.closed && !this.api.getAccessToken()) {
+            //* If auth window is closed but access token is not set
             resolve(false);
           }
           resolve(true);
@@ -72,16 +72,15 @@ export class SpotifyAPI implements IPlaylistAPI {
     return this.api.getUserPlaylists().then(
       (data) => {
         const userPlaylists = data.body.items;
-        for (const playlistIndex in userPlaylists) {
-          const playlist = userPlaylists[playlistIndex];
+        userPlaylists.forEach((playlist) => {
           if (playlist.name === playlistName) {
             return playlist.id;
           }
-        }
+        });
         return "";
       },
       (error) => {
-        throw new Error(error.message);
+        throw new Error(`Failed to get playlist id from name ${error.message}`);
       }
     );
   }
@@ -99,7 +98,7 @@ export class SpotifyAPI implements IPlaylistAPI {
         return new Playlist(playlistId, playlistName, playlistThumbnails);
       },
       (error) => {
-        throw new Error(error.message);
+        throw new Error(`Failed to get playlist info: "${error.message}"`);
       }
     );
   }
@@ -114,8 +113,8 @@ export class SpotifyAPI implements IPlaylistAPI {
           videos = response.body.items;
         }
         const items: Array<Video> = [];
-        for (const videoIndex in videos) {
-          const videoData = videos[videoIndex].track;
+        videos.forEach((video: { track: any }) => {
+          const videoData = video.track;
           const videoAlbumData = videoData.album;
           const videoAuthor = videoData.artists[0].name;
           const videoThumbnails: { [index: string]: string } = {
@@ -135,11 +134,11 @@ export class SpotifyAPI implements IPlaylistAPI {
               videoAuthor
             )
           );
-        }
+        });
         return items;
       },
       (error) => {
-        throw new Error(error.message);
+        throw new Error(`Failed to get playlist videos: "${error.message}"`);
       }
     );
   }
@@ -150,7 +149,7 @@ export class SpotifyAPI implements IPlaylistAPI {
         return response.body.id;
       },
       (error) => {
-        throw new Error(error.message);
+        throw new Error(`Failed to create new playlist: "${error.message}"`);
       }
     );
   }
@@ -165,22 +164,27 @@ export class SpotifyAPI implements IPlaylistAPI {
         this.getVideosURIS(playlistItems)
       );
     } catch (error) {
-      throw new Error(error.message);
+      throw new Error(`Failed to add items to playlist: "${error.message}"`);
     }
   }
 
   public search(query: Video): Promise<Array<Video>> {
-    const improvedQuery = query.author + " - " + query.name;
+    let improvedQuery;
+    if (query.author) {
+      improvedQuery = query.author + " - " + query.name;
+    } else {
+      improvedQuery = query.name;
+    }
     return this.api.searchTracks(improvedQuery, { limit: 5 }).then(
       (response) => {
-        const searchItems = response.body.tracks?.items;
+        const searchItems = response.body.tracks
+          ?.items as SpotifyApi.TrackObjectFull[];
         const videos: Array<Video> = [];
-        for (const searchItemIndex in searchItems) {
-          const searchItem = searchItems[searchItemIndex as unknown as number];
+        searchItems.forEach((searchItem) => {
           const searchItemAuthor = searchItem.artists[0].name;
           const searchItemLink = `https://open.spotify.com/embed/track/${searchItem.id}`;
           const searchItemAlbumData = searchItem.album;
-          const searchItemThumbnials: { [index: string]: string } = {
+          const searchItemThumbnails: { [index: string]: string } = {
             high: searchItemAlbumData.images[0].url,
             medium: searchItemAlbumData.images[1].url,
             low: searchItemAlbumData.images[2].url,
@@ -188,18 +192,16 @@ export class SpotifyAPI implements IPlaylistAPI {
           videos.push(
             new Video(
               searchItem.id,
-              searchItem.name,
-              searchItemThumbnials,
-              searchItemLink,
-              searchItemAuthor
+              searchItemAuthor + " - " + searchItem.name,
+              searchItemThumbnails,
+              searchItemLink
             )
           );
-        }
-        console.log(videos);
+        });
         return videos;
       },
       (error: any) => {
-        throw new Error(error.message);
+        throw new Error(`Failed to search for items: "${error.message}"`);
       }
     );
   }

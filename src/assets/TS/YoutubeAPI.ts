@@ -10,9 +10,6 @@ export class YoutubeAPI implements IPlaylistAPI {
 
   constructor(vueGapi: VueGapi) {
     this.vueGAPI = vueGapi;
-    this.vueGAPI.getGapiClient().then((gapiClient) => {
-      this.api = gapiClient.client.youtube;
-    });
   }
 
   private listUserPlaylistsInfos = (
@@ -23,8 +20,11 @@ export class YoutubeAPI implements IPlaylistAPI {
       .list({
         part: ["snippet"],
         mine: true,
+        pageToken: nextPageToken,
+        // maxresults: 50,
       })
       .then((response: any) => {
+        nextPageToken = response.result.nextPageToken;
         const items = response.result.items;
         playlistInfos = playlistInfos.concat(items);
         if (nextPageToken !== undefined && nextPageToken !== "") {
@@ -94,13 +94,16 @@ export class YoutubeAPI implements IPlaylistAPI {
     }
   }
 
-  public loginToAPI(): Promise<boolean> {
+  public async loginToAPI(): Promise<boolean> {
+    await this.vueGAPI.getGapiClient().then((gapiClient) => {
+      this.api = gapiClient.client.youtube;
+    });
     return this.vueGAPI.login().then(
       (loginResponse) => {
         return loginResponse.hasGrantedScopes;
       },
       (error: any) => {
-        throw new Error(error.result.error.message);
+        throw new Error(`Failed to log in: "${error.result.error.message}"`);
       }
     );
   }
@@ -108,16 +111,17 @@ export class YoutubeAPI implements IPlaylistAPI {
   public getPlaylistIdFromName(playlistName: string): Promise<string> {
     return this.listUserPlaylistsInfos().then(
       (playlistInfos: any) => {
-        for (const playlistInfoIndex in playlistInfos) {
-          const playlistInfo = playlistInfos[playlistInfoIndex];
+        playlistInfos.forEach((playlistInfo: any) => {
           if (playlistName === playlistInfo.snippet.title) {
             return playlistInfo.id;
           }
-        }
+        });
         return "";
       },
       (error: any) => {
-        throw new Error(error.result.error.message);
+        throw new Error(
+          `Failed to get playlist id from name: "${error.result.error.message}"`
+        );
       }
     );
   }
@@ -133,7 +137,9 @@ export class YoutubeAPI implements IPlaylistAPI {
         return new Playlist(playlistId, playlistName, playlistThumbnails);
       },
       (error: any) => {
-        throw new Error(error.result.error.message);
+        throw new Error(
+          `Failed to get playlist info: "${error.result.error.message}"`
+        );
       }
     );
   }
@@ -141,9 +147,9 @@ export class YoutubeAPI implements IPlaylistAPI {
   public getPlaylistVideos(playlistId: string): Promise<Array<Video>> {
     return this.listPlaylistItems(playlistId).then(
       (items: any) => {
-        const videos = [];
-        for (const itemIndex in items) {
-          const videoData = items[itemIndex].snippet;
+        const videos: Array<Video> = [];
+        items.forEach((item: any) => {
+          const videoData = item.snippet;
           const videoName = videoData.title;
           if (videoName !== "Private video" && videoName !== "Deleted video") {
             const videoThumbnails = this.getThumbnailUrls(videoData.thumbnails);
@@ -153,11 +159,13 @@ export class YoutubeAPI implements IPlaylistAPI {
               new Video(videoId, videoName, videoThumbnails, videoLink)
             );
           }
-        }
+        });
         return videos;
       },
       (error: any) => {
-        throw new Error(error.result.error.message);
+        throw new Error(
+          `Failed to get playlist videos: "${error.result.error.message}"`
+        );
       }
     );
   }
@@ -174,11 +182,12 @@ export class YoutubeAPI implements IPlaylistAPI {
       })
       .then(
         (response: any) => {
-          console.log(response);
-          return "";
+          return response.result.id;
         },
         (error: any) => {
-          throw new Error(error.result.error.message);
+          throw new Error(
+            `Failed to create a new playlist: "${error.result.error.message}`
+          );
         }
       );
   }
@@ -202,32 +211,41 @@ export class YoutubeAPI implements IPlaylistAPI {
         },
       },
       (error: any) => {
-        throw new Error(error.result.error.message);
+        throw new Error(
+          `Failed to add items to playlist: "${error.result.error.message}`
+        );
       }
     );
     itemIndex += 1;
     if (itemIndex <= items.length - 1) {
       await this.addItemsToPlaylist(playlistId, items, itemIndex).catch(
         (error) => {
-          throw new Error(error.result.error.message);
+          throw new Error(
+            `Failed to add items to playlist: "${error.result.error.message}`
+          );
         }
       );
     }
   };
 
   public search(query: Video): Promise<Array<Video>> {
+    let improvedQuery;
+    if (query.author) {
+      improvedQuery = query.author + " - " + query.name;
+    } else {
+      improvedQuery = query.name;
+    }
     return this.api.search
       .list({
         part: ["snippet"],
         maxResults: 5,
-        q: query.name,
+        q: improvedQuery,
       })
       .then(
         (response: any) => {
           const searchItems = response.result.items;
-          const videos = [];
-          for (const searchItemIndex in searchItems) {
-            const searchItem = searchItems[searchItemIndex];
+          const videos: Array<Video> = [];
+          searchItems.forEach((searchItem: any) => {
             const videoData = searchItem.snippet;
             const videoId = searchItem.id.videoId;
             const videoName = videoData.title;
@@ -236,12 +254,13 @@ export class YoutubeAPI implements IPlaylistAPI {
             videos.push(
               new Video(videoId, videoName, videoThumbnails, videoLink)
             );
-          }
-          console.log(videos);
+          });
           return videos;
         },
         (error: any) => {
-          throw new Error(error.result.error.message);
+          throw new Error(
+            `Failed to search for items: "${error.result.error.message}`
+          );
         }
       );
   }

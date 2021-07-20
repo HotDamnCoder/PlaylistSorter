@@ -73,9 +73,6 @@
             justify-content-center
           "
         >
-          <label for="exampleDataList" class="form-label"
-            >Spotify alternative</label
-          >
           <input
             class="form-control"
             :list="index"
@@ -84,7 +81,8 @@
           <datalist :id="index">
             <option
               v-for="searchItem in alternativePlaylistItems[index]"
-              :key="searchItem.author + ' - ' + searchItem.name"
+              :key="searchItem.name"
+              v-bind:value="searchItem.id"
             >
               {{ searchItem.name }}
             </option>
@@ -138,14 +136,14 @@ export default defineComponent({
     alternativePlaylistAPI: function (): IPlaylistAPI {
       switch (this.playlistType.toLowerCase()) {
         case "youtube":
-          return new YoutubeAPI(this.$gapi);
-        default:
           return new SpotifyAPI(
             SPOTIFY_CLIENT_ID,
             SPOTIFY_CLIENT_SECRET,
             SPOTIFY_SCOPE,
             SPOTIFY_REDIRECT_URI
           );
+        default:
+          return new YoutubeAPI(this.$gapi);
       }
     },
     playlistAPI: function (): IPlaylistAPI {
@@ -167,25 +165,34 @@ export default defineComponent({
   methods: {
     ...mapMutations(["setPlaylistItems"]),
     async getAlternativePlaylistItems(): Promise<Array<Array<Video>>> {
-      let alternativePlaylistItems = [];
-      for (const itemIndex in this.playlistItems) {
-        const item = this.playlistItems[itemIndex];
+      let alternativePlaylistItems: Array<Array<Video>> = [];
+      this.playlistItems.forEach(async (item) => {
         const alternativeItems = await this.alternativePlaylistAPI.search(item);
+        console.log(alternativeItems);
         alternativePlaylistItems.push(alternativeItems);
-      }
+      });
       return alternativePlaylistItems;
     },
   },
-  async mounted() {
+  async beforeMount() {
     await this.playlistAPI
       .getPlaylistVideos(this.getPlaylistID().id)
       .then(async (items) => {
         this.setPlaylistItems(items);
-        this.alternativePlaylistItems =
-          await this.getAlternativePlaylistItems();
+        console.log(this.alternativePlaylistAPI);
+        await this.alternativePlaylistAPI.loginToAPI().then(async (logedIn) => {
+          if (!logedIn) {
+            alert("You're not logged in!");
+          } else {
+            this.alternativePlaylistItems =
+              await this.getAlternativePlaylistItems();
+          }
+        });
       })
       .catch((error) => {
-        alert(`Failed to get playlist videos: "${error.message}`);
+        console.log("a");
+        alert(error.message);
+        throw error;
       });
   },
 });

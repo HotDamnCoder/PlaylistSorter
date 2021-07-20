@@ -56,7 +56,7 @@ export default defineComponent({
         this.setPlaylistID(new PlaylistId(this.url));
         this.$router.push("playlist");
       } catch (error) {
-        this.error = error.message; //
+        this.error = error.message;
       }
     },
     ...mapMutations(["setPlaylistID"]),
