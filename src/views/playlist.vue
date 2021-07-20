@@ -26,26 +26,18 @@ import Navbar from "@/components/Navbar.vue"; // @ is an alias to /src
 import PlaylistTitle from "@/components/PlaylistTitle.vue";
 import CenteredContainer from "@/components/CenteredContainer.vue";
 import StyledButton from "@/components/StyledButton.vue";
-import { IPlaylistAPI } from "@/assets/TS/IPlaylistAPI";
-import { SpotifyAPI } from "@/assets/TS/SpotifyAPI";
-import { YoutubeAPI } from "@/assets/TS/YoutubeAPI";
 import { mapMutations, mapGetters } from "vuex";
 
-import {
-  SPOTIFY_CLIENT_ID,
-  SPOTIFY_CLIENT_SECRET,
-  SPOTIFY_REDIRECT_URI,
-  SPOTIFY_SCOPE,
-} from "@/assets/TS/credentials";
 import { Playlist } from "@/assets/TS/Playlist";
 import Thumbnail from "@/components/Thumbnail.vue";
+import { IPlaylistAPI } from "@/assets/TS/IPlaylistAPI";
 
 export default defineComponent({
   computed: {
     playlistThumbnailURL: function () {
       return this.$store.getters.getPlaylistThumbnailURL() as string;
     },
-    ...mapGetters(["getPlaylistID"]),
+    ...mapGetters(["getPlaylistID", "getPlaylistAPI"]),
   },
   components: {
     Navbar,
@@ -69,42 +61,16 @@ export default defineComponent({
   },
 
   async beforeMount() {
-    var playlistAPI: IPlaylistAPI;
-    try {
-      switch (this.getPlaylistID().type.toLowerCase()) {
-        case "youtube":
-          playlistAPI = new YoutubeAPI(this.$gapi);
-          break;
-        default:
-          playlistAPI = new SpotifyAPI(
-            SPOTIFY_CLIENT_ID,
-            SPOTIFY_CLIENT_SECRET,
-            SPOTIFY_SCOPE,
-            SPOTIFY_REDIRECT_URI
-          );
-      }
-    } catch (error) {
-      alert(`Failed to initialize playlist API: ${error.message}`);
-      return;
-    }
-    this.setPlaylistAPI(playlistAPI);
+    const playlistAPI: IPlaylistAPI = this.getPlaylistAPI();
     await playlistAPI
-      .loginToAPI()
-      .then(async (logedIn) => {
-        if (logedIn) {
-          await playlistAPI
-            .getPlaylist(this.getPlaylistID().id)
-            .then((playlist: Playlist) => {
-              this.setPlaylistName(playlist.name);
-              this.setPlaylistThumbnailURL(playlist.thumbnails.medium);
-            });
-        } else {
-          alert("You're not logged in!");
-        }
+      .getPlaylist(this.getPlaylistID().id)
+      .then((playlist: Playlist) => {
+        this.setPlaylistName(playlist.name);
+        this.setPlaylistThumbnailURL(playlist.thumbnails.medium);
       })
-      .catch((error) => {
+      .catch(async (error) => {
+        await this.$router.go(-1);
         alert(error.message);
-        throw error;
       });
   },
 });

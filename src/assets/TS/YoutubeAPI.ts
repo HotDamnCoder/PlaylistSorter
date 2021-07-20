@@ -103,7 +103,7 @@ export class YoutubeAPI implements IPlaylistAPI {
         return loginResponse.hasGrantedScopes;
       },
       (error: any) => {
-        throw new Error(`Failed to log in: "${error.result.error.message}"`);
+        throw new Error(`Failed to log in: "${error.error}"`);
       }
     );
   }

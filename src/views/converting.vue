@@ -166,11 +166,11 @@ export default defineComponent({
     ...mapMutations(["setPlaylistItems"]),
     async getAlternativePlaylistItems(): Promise<Array<Array<Video>>> {
       let alternativePlaylistItems: Array<Array<Video>> = [];
-      this.playlistItems.forEach(async (item) => {
+      for (const itemIndex in this.playlistItems) {
+        const item = this.playlistItems[itemIndex];
         const alternativeItems = await this.alternativePlaylistAPI.search(item);
-        console.log(alternativeItems);
         alternativePlaylistItems.push(alternativeItems);
-      });
+      }
       return alternativePlaylistItems;
     },
   },
@@ -179,20 +179,19 @@ export default defineComponent({
       .getPlaylistVideos(this.getPlaylistID().id)
       .then(async (items) => {
         this.setPlaylistItems(items);
-        console.log(this.alternativePlaylistAPI);
         await this.alternativePlaylistAPI.loginToAPI().then(async (logedIn) => {
           if (!logedIn) {
             alert("You're not logged in!");
+            this.$router.go(-1);
           } else {
             this.alternativePlaylistItems =
               await this.getAlternativePlaylistItems();
           }
         });
       })
-      .catch((error) => {
-        console.log("a");
+      .catch(async (error) => {
+        await this.$router.go(-1);
         alert(error.message);
-        throw error;
       });
   },
 });

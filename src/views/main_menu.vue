@@ -40,6 +40,15 @@ import CenteredContainer from "@/components/CenteredContainer.vue";
 import StyledButton from "@/components/StyledButton.vue";
 import { PlaylistId } from "@/assets/TS/PlaylistID";
 import { mapMutations } from "vuex";
+import {
+  SPOTIFY_CLIENT_ID,
+  SPOTIFY_CLIENT_SECRET,
+  SPOTIFY_SCOPE,
+  SPOTIFY_REDIRECT_URI,
+} from "@/assets/TS/credentials";
+import { IPlaylistAPI } from "@/assets/TS/IPlaylistAPI";
+import { SpotifyAPI } from "@/assets/TS/SpotifyAPI";
+import { YoutubeAPI } from "@/assets/TS/YoutubeAPI";
 
 export default defineComponent({
   data() {
@@ -53,13 +62,44 @@ export default defineComponent({
       e.preventDefault(); //*  Prevents default form action
       this.error = "";
       try {
-        this.setPlaylistID(new PlaylistId(this.url));
-        this.$router.push("playlist");
+        const playlistId = new PlaylistId(this.url);
+        this.setPlaylistID(playlistId);
+        var playlistAPI: IPlaylistAPI;
+        try {
+          switch (playlistId.type.toLowerCase()) {
+            case "youtube":
+              playlistAPI = new YoutubeAPI(this.$gapi);
+              break;
+            default:
+              playlistAPI = new SpotifyAPI(
+                SPOTIFY_CLIENT_ID,
+                SPOTIFY_CLIENT_SECRET,
+                SPOTIFY_SCOPE,
+                SPOTIFY_REDIRECT_URI
+              );
+          }
+          this.setPlaylistAPI(playlistAPI);
+          playlistAPI
+            .loginToAPI()
+            .then((logedIn) => {
+              if (logedIn) {
+                this.$router.push("playlist");
+              } else {
+                alert("You're not logged in! Try again!");
+              }
+            })
+            .catch((error) => {
+              alert(error.message);
+            });
+        } catch (error) {
+          alert(`Failed to initialize playlist API: ${error.message}`);
+          return;
+        }
       } catch (error) {
         this.error = error.message;
       }
     },
-    ...mapMutations(["setPlaylistID"]),
+    ...mapMutations(["setPlaylistID", "setPlaylistAPI"]),
   },
   components: {
     CenteredContainer,

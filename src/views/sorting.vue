@@ -110,53 +110,42 @@ export default defineComponent({
       [index: string]: Array<string>;
     }) {
       for (const playlistName in sortedPlaylists) {
-        const playlistItems = sortedPlaylists[playlistName];
-        let playlistId: string;
-        //* Check if playlist exists (playlistId === "" if playlist doesnt exist)
         try {
+          const playlistItems = sortedPlaylists[playlistName];
+          let playlistId: string;
+          //* Check if playlist exists (playlistId === "" if playlist doesnt exist)
           playlistId = await this.playlistAPI.getPlaylistIdFromName(
             playlistName
           );
+          //* Create new playlist if it didn't exist else remove duplicates
+          if (playlistId === "") {
+            await this.playlistAPI
+              .createPlaylist(playlistName)
+              .then((createdPlaylistId: string) => {
+                playlistId = createdPlaylistId;
+              });
+          } else {
+            await this.playlistAPI
+              .getPlaylistVideos(playlistId)
+              .then((videos: Array<Video>) => {
+                //* This part removes already existing videos in playlist from uniquePlaylistItems
+                videos.forEach((video) => {
+                  if (playlistItems.includes(video.id)) {
+                    const duplicateIndex = playlistItems.indexOf(video.id);
+                    playlistItems.splice(duplicateIndex, 1);
+                  }
+                });
+              });
+          }
+          //* Add items to playlist
+          if (playlistItems.length > 0) {
+            await this.playlistAPI.addItemsToPlaylist(
+              playlistId,
+              playlistItems
+            );
+          }
         } catch (error) {
           alert(error.message);
-          return;
-        }
-        //* Create new playlist if it didn't exist else remove duplicates
-        if (playlistId === "") {
-          await this.playlistAPI
-            .createPlaylist(playlistName)
-            .then((createdPlaylistId: string) => {
-              playlistId = createdPlaylistId;
-            })
-            .catch((error) => {
-              alert(error.message);
-              throw error;
-            });
-        } else {
-          await this.playlistAPI
-            .getPlaylistVideos(playlistId)
-            .then((videos: Array<Video>) => {
-              //* This part removes already existing videos in playlist from uniquePlaylistItems
-              videos.forEach((video) => {
-                if (playlistItems.includes(video.id)) {
-                  const duplicateIndex = playlistItems.indexOf(video.id);
-                  playlistItems.splice(duplicateIndex, 1);
-                }
-              });
-            })
-            .catch((error) => {
-              alert(error.message);
-              throw error;
-            });
-        }
-        //* Add items to playlist
-        if (playlistItems.length > 0) {
-          await this.playlistAPI
-            .addItemsToPlaylist(playlistId, playlistItems)
-            .catch((error) => {
-              alert(error.message);
-              throw error;
-            });
         }
       }
     },
@@ -171,7 +160,8 @@ export default defineComponent({
       .then((items) => {
         this.setPlaylistItems(items);
       })
-      .catch((error) => {
+      .catch(async (error) => {
+        await this.$router.go(-1);
         alert(error.message);
       });
   },
