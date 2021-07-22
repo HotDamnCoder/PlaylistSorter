@@ -69,7 +69,7 @@ export default defineComponent({
         this.setPlaylistThumbnailURL(playlist.thumbnails.medium);
       })
       .catch(async (error) => {
-        await this.$router.go(-1);
+        this.$router.go(-1);
         alert(error.message);
       });
   },

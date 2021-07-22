@@ -190,7 +190,7 @@ export default defineComponent({
         });
       })
       .catch(async (error) => {
-        await this.$router.go(-1);
+        this.$router.go(-1);
         alert(error.message);
       });
   },
