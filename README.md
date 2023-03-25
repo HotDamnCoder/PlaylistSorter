@@ -1,4 +1,4 @@
-# ***REMOVED***
+# Playlist Sorter
 
 ## Project setup
 ```
